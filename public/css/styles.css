@@ -282,8 +282,10 @@ main.lang-fade { opacity: 0; }
   background: var(--accent);
   color: var(--accent-fg);
   cursor: pointer;
-  font-size: 1.15rem;
-  padding: 0.7rem 1.4rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  padding: 0.6rem 1.4rem;
   margin-bottom: 1.6rem;
 }
 .btn-add:hover { opacity: 0.85; }
@@ -437,8 +439,10 @@ main.lang-fade { opacity: 0; }
   background: var(--accent);
   color: var(--accent-fg);
   cursor: pointer;
-  font-size: 1.15rem;
-  padding: 0.7rem 1.6rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  padding: 0.6rem 1.6rem;
   margin-top: 1.2rem;
 }
 .btn-pagar:disabled { background: #bbb; cursor: not-allowed; }

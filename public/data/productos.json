@@ -1,5 +1,39 @@
 [
   {
+    "id": "la-mort-i-la-primavera",
+    "titulo": ["La mort i la primavera"],
+    "autor": "Sofia Milena",
+    "autorId": "sofia-milena",
+    "precio": 25.00,
+    "peso": 180,
+    "imgs": [
+      "img/productos/la-mort-i-la-primavera/1.webp",
+      "img/productos/la-mort-i-la-primavera/2.webp",
+      "img/productos/la-mort-i-la-primavera/3.webp",
+      "img/productos/la-mort-i-la-primavera/4.webp",
+      "img/productos/la-mort-i-la-primavera/5.webp",
+      "img/productos/la-mort-i-la-primavera/6.webp",
+      "img/productos/la-mort-i-la-primavera/7.webp",
+      "img/productos/la-mort-i-la-primavera/8.webp",
+      "img/productos/la-mort-i-la-primavera/9.webp"
+    ],
+    "ficha": {
+      "editorial": "quien no corre, vuela",
+      "encuadernacion": { "es": "cosido", "ca": "cosit", "en": "sewn-bound" },
+      "paginas": 68,
+      "medidas": "148 × 210 mm",
+      "anio": { "es": "junio 2026", "ca": "juny 2026", "en": "June 2026" },
+      "edicion": { "es": "1ª edición · 50 copias", "ca": "1a edició · 50 còpies", "en": "1st edition · 50 copies" }
+    },
+    "descripcion": {
+      "es": "La publicación “La mort i la primavera; Diarios de Laboratorio II: Positivado a color” recoge las imágenes elaboradas durante el proceso de aprendizaje del positivado a color. En este diario se reúnen vivencias y sucesos de forma íntima y vulnerable: el amor, la pérdida de seres queridos, la amistad, el desamor y el inevitable paso del tiempo.\n\nEl título aparece como una premonición, un futuro que está preparado para ser cumplido.",
+      "ca": "La publicació “La mort i la primavera; Diaris de Laboratori II: Positivat en color” recull les imatges elaborades durant el procés d’aprenentatge del positivat en color. En aquest diari s’hi reuneixen vivències i esdeveniments de manera íntima i vulnerable: l’amor, la pèrdua d’éssers estimats, l’amistat, el desamor i l’inevitable pas del temps.\n\nEl títol apareix com una premonició, un futur que està preparat per ser complert.",
+      "en": "“La mort i la primavera; Laboratory Diaries II: Color Printing” brings together the images created during the process of learning color photographic printing. This diary gathers experiences and events in an intimate and vulnerable way: love, the loss of loved ones, friendship, heartbreak, and the inevitable passage of time.\n\nThe title appears as a premonition, a future already poised to be fulfilled."
+    },
+    "stockInicial": 50,
+    "activo": true
+  },
+  {
     "id": "archivo-en-pixel",
     "titulo": ["Archivo en Pixel"],
     "autor": "Andrea Carilla",
@@ -121,40 +155,6 @@
       "es": "pictures from random lives del día que nací*\n\nEl recuerdo de un internet donde la necesidad de compartir generaba una memoria colectiva que, hoy en día, es un archivo vivo y me permite saber —a una escala minúscula— qué estaba pasando el día en que nací.\n\n*o cómo dejar de ser el centro del mundo.",
       "ca": "pictures from random lives del dia que vaig néixer*\n\nEl record d’un internet on la necessitat de compartir generava una memòria col·lectiva que avui en dia és un arxiu viu i em permet saber —en una minúscula escala— què passava el dia que jo naixia.\n\n*o com deixar de ser el centre del món.",
       "en": "pictures from random lives from the day i was born*\n\nThe memory of an internet where the need to share created a collective memory that today remains a living archive, allowing me to know —on a tiny scale— what was happening on the day i was born.\n\n*or how to stop being the center of the world."
-    },
-    "stockInicial": 50,
-    "activo": true
-  },
-  {
-    "id": "la-mort-i-la-primavera",
-    "titulo": ["La mort i la primavera"],
-    "autor": "Sofia Milena",
-    "autorId": "sofia-milena",
-    "precio": 16.00,
-    "peso": 180,
-    "imgs": [
-      "img/productos/la-mort-i-la-primavera/1.webp",
-      "img/productos/la-mort-i-la-primavera/2.webp",
-      "img/productos/la-mort-i-la-primavera/3.webp",
-      "img/productos/la-mort-i-la-primavera/4.webp",
-      "img/productos/la-mort-i-la-primavera/5.webp",
-      "img/productos/la-mort-i-la-primavera/6.webp",
-      "img/productos/la-mort-i-la-primavera/7.webp",
-      "img/productos/la-mort-i-la-primavera/8.webp",
-      "img/productos/la-mort-i-la-primavera/9.webp"
-    ],
-    "ficha": {
-      "editorial": "quien no corre, vuela",
-      "encuadernacion": { "es": "cosido", "ca": "cosit", "en": "sewn-bound" },
-      "paginas": 68,
-      "medidas": "148 × 210 mm",
-      "anio": { "es": "junio 2026", "ca": "juny 2026", "en": "June 2026" },
-      "edicion": { "es": "1ª edición · 50 copias", "ca": "1a edició · 50 còpies", "en": "1st edition · 50 copies" }
-    },
-    "descripcion": {
-      "es": "La publicación “La mort i la primavera; Diarios de Laboratorio II: Positivado a color” recoge las imágenes elaboradas durante el proceso de aprendizaje del positivado a color. En este diario se reúnen vivencias y sucesos de forma íntima y vulnerable: el amor, la pérdida de seres queridos, la amistad, el desamor y el inevitable paso del tiempo.\n\nEl título aparece como una premonición, un futuro que está preparado para ser cumplido.",
-      "ca": "La publicació “La mort i la primavera; Diaris de Laboratori II: Positivat en color” recull les imatges elaborades durant el procés d’aprenentatge del positivat en color. En aquest diari s’hi reuneixen vivències i esdeveniments de manera íntima i vulnerable: l’amor, la pèrdua d’éssers estimats, l’amistat, el desamor i l’inevitable pas del temps.\n\nEl títol apareix com una premonició, un futur que està preparat per ser complert.",
-      "en": "“La mort i la primavera; Laboratory Diaries II: Color Printing” brings together the images created during the process of learning color photographic printing. This diary gathers experiences and events in an intimate and vulnerable way: love, the loss of loved ones, friendship, heartbreak, and the inevitable passage of time.\n\nThe title appears as a premonition, a future already poised to be fulfilled."
     },
     "stockInicial": 50,
     "activo": true
