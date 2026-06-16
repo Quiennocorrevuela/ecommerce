@@ -6,7 +6,7 @@
     "tipo": { "es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair" },
     "fechaInicio": "2025-05-08",
     "fechaFin": "2025-05-08",
-    "cartel": ""
+    "cartel": "img/eventos/empreses-impreses-2025.webp"
   },
   {
     "id": "1-metro-zine-2025",
@@ -15,7 +15,7 @@
     "tipo": { "es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair" },
     "fechaInicio": "2025-05-24",
     "fechaFin": "2025-05-24",
-    "cartel": ""
+    "cartel": "img/eventos/1-metro-zine-2025.webp"
   },
   {
     "id": "xiringuito-2025",
@@ -24,16 +24,16 @@
     "tipo": { "es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair" },
     "fechaInicio": "2025-05-31",
     "fechaFin": "2025-05-31",
-    "cartel": ""
+    "cartel": "img/eventos/xiringuito-2025.webp"
   },
   {
     "id": "exabrupto-2025",
     "titulo": "Exabrupto",
     "lugar": "Moià",
     "tipo": { "es": "festival experimental de creación contemporánea", "ca": "festival experimental de creació contemporània", "en": "experimental contemporary art festival" },
-    "fechaInicio": "2025-07-05",
+    "fechaInicio": "2025-07-04",
     "fechaFin": "2025-07-05",
-    "cartel": ""
+    "cartel": "img/eventos/exabrupto-2025.webp"
   },
   {
     "id": "bala-bilbao-2025",
@@ -42,7 +42,7 @@
     "tipo": { "es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair" },
     "fechaInicio": "2025-12-12",
     "fechaFin": "2025-12-14",
-    "cartel": ""
+    "cartel": "img/eventos/bala-bilbao-2025.webp"
   },
   {
     "id": "presentacion-center-world-2026",
@@ -51,6 +51,6 @@
     "tipo": { "es": "evento de presentación", "ca": "esdeveniment de presentació", "en": "book launch" },
     "fechaInicio": "2026-02-01",
     "fechaFin": "2026-02-01",
-    "cartel": ""
+    "cartel": "img/eventos/presentacion-center-world-2026.webp"
   }
 ]

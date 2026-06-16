@@ -9,16 +9,14 @@
   </head>
   <body>
     <main>
-      <div class="cal-wrap">
+      <div class="cal" data-cal>
         <div class="cal-track" data-cal-track>
           <p class="estado" data-i18n="loading">Cargando…</p>
         </div>
-        <div class="cal-now-chip" data-now hidden>
-          <span class="dot" data-now-dot>·</span>
-          <span>
-            <span class="now-label" data-i18n="cal.now">ahora en España</span><br />
-            <span class="now-time" data-now-time></span>
-          </span>
+        <div class="cal-marker" data-marker hidden>
+          <span class="cal-caret" aria-hidden="true"></span>
+          <span class="cal-date" data-marker-date></span>
+          <span class="cal-time" data-marker-time></span>
         </div>
       </div>
     </main>
