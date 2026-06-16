@@ -1,70 +1,55 @@
 # Despliegue — Quien no corre, vuela
 
-Stack: **Cloudflare Pages** (web estática) + **Pages Functions** (API Hono) + **D1** (stock, pedidos,
-newsletter, mensajes) + **Stripe Checkout** (pagos). Todo gratis bajo una cuenta de Cloudflare.
+Stack: **Cloudflare Worker** (con *static assets*) + **D1** (base de datos) + **Stripe** (pagos).
+Un solo Worker sirve la web (`public/`) y la API (`/api/*`). Todo gratis bajo una cuenta de Cloudflare.
 
-> Los pasos con 🔐 los tienes que hacer **tú**: implican login OAuth o introducir claves secretas
-> (Stripe, ADMIN_TOKEN). Por seguridad no se automatizan ni se guardan en el repo.
+**Ya está desplegado:** https://quien-no-corre-vuela.manuellatourf.workers.dev
 
-## 0. Requisitos
-- Cuenta en [Cloudflare](https://dash.cloudflare.com) y en [Stripe](https://dashboard.stripe.com).
-- `node` y este repo clonado. `npm install`.
-
-## 1. 🔐 Login en Cloudflare
-```bash
-npx wrangler login
+## Cómo está montado
+```
+public/        ← la web (HTML, CSS, JS, imágenes, data/*.json). Cloudflare la sirve directa.
+src/index.js   ← el Worker. Solo atiende /api/* (Hono). El resto lo sirven los assets.
+wrangler.toml  ← config: main, [assets] directory=public, binding D1 (DB → shop).
 ```
 
-## 2. Crear la base de datos D1
+## Redesplegar (cada cambio)
 ```bash
-npx wrangler d1 create shop
+npm install        # solo la primera vez
+npm run deploy     # = npx wrangler deploy  → publica el Worker
 ```
-Copia el `database_id` que devuelve y pégalo en [`wrangler.toml`](wrangler.toml) (reemplaza
-`PEGA_AQUI_EL_ID_DEVUELTO_POR_D1_CREATE`). Luego crea las tablas:
+También: `npm run preview` (maqueta en local, http://localhost:8123) o `npm run dev` (Worker local).
+
+### Opción: auto-deploy desde GitHub (como tus otros proyectos)
+Dashboard → el Worker `quien-no-corre-vuela` → **Settings → Builds → Connect** → repo
+`meowrhino/quien-no-corre-vuela`, rama `main`. A partir de ahí, cada `git push` despliega solo.
+
+## Base de datos (D1)
+Ya creada (`shop`) y con tablas aplicadas. Si alguna vez hay que recrearlas:
 ```bash
 npm run db:init          # remoto (producción)
 npm run db:init:local    # local (desarrollo)
 ```
+Guarda solo lo mutable: `stock`, `pedidos`, `newsletter`, `mensajes`. El catálogo NO está en la BD
+(vive en `public/data/*.json`).
 
-## 3. Conectar el repo a Pages
-Dashboard → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git** →
-elige este repo. Configuración:
-- **Production branch:** `main`
-- **Framework preset:** None · **Build command:** (vacío) · **Build output directory:** `/`
-
-Cada `git push` a `main` redespliega solo.
-
-## 4. Enlazar la D1 al sitio
-Settings → **Functions** → **D1 database bindings** → Add binding: variable `DB` → base de datos `shop`.
-
-## 5. 🔐 Secretos de producción
-Settings → **Environment variables** → **Production** → Add (marca **Encrypted**):
-
-| Variable | Valor |
-|---|---|
-| `STRIPE_SECRET_KEY` | `sk_test_…` o `sk_live_…` |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_…` (paso 6) |
-| `ADMIN_TOKEN` | un string largo inventado; lo usarás en `/admin/` |
-| `FRONTEND_URL` | p.ej. `https://quiennocorre.com` |
-
-Tras añadirlos: **Deployments → Retry deployment**.
-
-## 6. 🔐 Webhook de Stripe
-Stripe → Developers → **Webhooks** → Add endpoint:
-- URL: `https://TU-DOMINIO/api/stripe-webhook`
-- Evento: `checkout.session.completed`
-- Copia el **Signing secret** → actualiza `STRIPE_WEBHOOK_SECRET` y relanza el deploy.
-
-## 7. Dominio propio
-Pages → **Custom domains** → añade tu dominio. Si el DNS ya está en Cloudflare, HTTPS automático en
-1–2 min. Acuérdate de poner ese dominio en `FRONTEND_URL`.
-
-## Desarrollo local
+## 🔐 Secretos (los metes tú; no van al repo)
 ```bash
-node serve.mjs     # maquetación rápida sin Functions → http://localhost:8123
-npm run dev        # completo (Functions + D1 + Stripe) → http://localhost:8788
+npx wrangler secret put STRIPE_SECRET_KEY      # sk_test_… o sk_live_… (necesario para el pago)
+npx wrangler secret put STRIPE_WEBHOOK_SECRET   # whsec_… (del webhook de Stripe)
+npx wrangler secret put ADMIN_TOKEN             # string largo inventado → para entrar en /admin/
 ```
-Secretos locales en `.dev.vars` (copia de `.dev.vars.example`, ignorado por git).
+Sin secretos: la web y el catálogo funcionan, newsletter y contacto guardan en D1. Con ellos:
+también el pago (Stripe) y el panel `/admin/`.
+
+### Webhook de Stripe
+Stripe → Developers → Webhooks → Add endpoint:
+`https://TU-DOMINIO/api/stripe-webhook`, evento `checkout.session.completed`. Copia el signing
+secret a `STRIPE_WEBHOOK_SECRET`.
+
+## Dominio propio
+Dashboard → el Worker → **Settings → Domains & Routes → Add → Custom domain**. Si el DNS está en
+Cloudflare, HTTPS automático en 1–2 min. (No hace falta tocar `FRONTEND_URL`: el Worker usa el
+origen de cada petición.)
 
 ## Admin
 `https://TU-DOMINIO/admin/` → guarda el `ADMIN_TOKEN` → pedidos, stock, newsletter y mensajes.
