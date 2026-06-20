@@ -52,5 +52,14 @@
     "fechaInicio": "2026-02-01",
     "fechaFin": "2026-02-01",
     "cartel": "img/eventos/presentacion-center-world-2026.webp"
+  },
+  {
+    "id": "convocatoria-publicacion-2026",
+    "titulo": "Convocatoria · publicación de proyecto fotográfico",
+    "lugar": "online",
+    "tipo": { "es": "convocatoria", "ca": "convocatòria", "en": "open call" },
+    "fechaInicio": "2026-06-18",
+    "fechaFin": "2026-06-18",
+    "cartel": "img/eventos/convocatoria-2026.webp"
   }
 ]
