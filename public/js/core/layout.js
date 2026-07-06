@@ -17,6 +17,7 @@ const NAV = [
   { href: "newsletter.html", key: "nav.newsletter" },
   { href: "contacto.html", key: "nav.contacto" },
   { href: "autores.html", key: "nav.autoras" },
+  { href: "legal.html", key: "nav.legal" },
 ];
 
 function build() {

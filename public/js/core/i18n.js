@@ -29,6 +29,7 @@ const STRINGS = {
   "nav.newsletter": { es: "newsletter", ca: "newsletter", en: "newsletter" },
   "nav.contacto": { es: "contacto", ca: "contacte", en: "contact" },
   "nav.autoras": { es: "autoras", ca: "autores", en: "authors" },
+  "nav.legal": { es: "legal", ca: "legal", en: "legal" },
   "cart.title": { es: "carrito", ca: "cistella", en: "cart" },
   "cart.empty": { es: "El carrito está vacío.", ca: "La cistella és buida.", en: "Your cart is empty." },
   "cart.subtotal": { es: "Subtotal", ca: "Subtotal", en: "Subtotal" },

@@ -658,6 +658,16 @@ main.lang-fade { opacity: 0; }
   .card-titulo { font-size: 0.98rem; }
 }
 
+/* ─── legal ─────────────────────────────────────────────── */
+.pagina-info.legal {
+  grid-template-columns: minmax(0, 66ch);
+  align-items: start;
+  min-height: 0;
+  padding: 2rem 0 4rem;
+}
+.legal h1 { font-weight: 500; }
+.legal h2 { font-weight: 500; margin: 2rem 0 0.6rem; }
+
 /* ============================================================
    Normalización tipográfica: TODO el texto serif-itálico (menú, títulos,
    botones importantes…) al mismo peso real 500. Evita que los <h1>/<h3>
