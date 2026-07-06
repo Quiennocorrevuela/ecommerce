@@ -9,6 +9,7 @@
   {
     "zona": "peninsula",
     "nombre": { "es": "España peninsular", "ca": "Espanya peninsular", "en": "Mainland Spain" },
+    "paises": ["ES"],
     "tramos": [
       { "hasta": 500, "precio": 3.50 },
       { "hasta": 1000, "precio": 4.90 },
@@ -19,6 +20,7 @@
   {
     "zona": "baleares-canarias",
     "nombre": { "es": "Baleares y Canarias", "ca": "Balears i Canàries", "en": "Balearic & Canary Islands" },
+    "paises": ["ES"],
     "tramos": [
       { "hasta": 500, "precio": 5.50 },
       { "hasta": 1000, "precio": 7.50 },
@@ -29,6 +31,7 @@
   {
     "zona": "europa",
     "nombre": { "es": "Europa", "ca": "Europa", "en": "Europe" },
+    "paises": ["AD","AT","BE","BG","CH","CY","CZ","DE","DK","EE","FI","FR","GB","GR","HR","HU","IE","IS","IT","LI","LT","LU","LV","MC","ME","MK","MT","NL","NO","PL","PT","RO","RS","SE","SI","SK","SM","VA"],
     "tramos": [
       { "hasta": 500, "precio": 8.00 },
       { "hasta": 1000, "precio": 11.00 },

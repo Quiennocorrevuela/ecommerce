@@ -8,7 +8,9 @@
     "deploy": "wrangler deploy",
     "preview": "node serve.mjs",
     "db:init": "wrangler d1 execute shop --remote --file=./public/data/schema.sql",
-    "db:init:local": "wrangler d1 execute shop --local --file=./public/data/schema.sql"
+    "db:init:local": "wrangler d1 execute shop --local --file=./public/data/schema.sql",
+    "db:migrate": "wrangler d1 execute shop --remote --file=./migrations/2026-07-07_pedidos_envio.sql",
+    "db:migrate:local": "wrangler d1 execute shop --local --file=./migrations/2026-07-07_pedidos_envio.sql"
   },
   "dependencies": {
     "hono": "^4.6.14",

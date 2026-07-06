@@ -29,6 +29,11 @@ Ya creada (`shop`) y con tablas aplicadas. Si alguna vez hay que recrearlas:
 npm run db:init          # remoto (producción)
 npm run db:init:local    # local (desarrollo)
 ```
+**Migración 2026-07-07** (bases creadas antes de esa fecha): añade `zona`, `envio` y `estado` a `pedidos`:
+```bash
+npm run db:migrate       # remoto (una sola vez; falla con "duplicate column" si ya está aplicada)
+npm run db:migrate:local # local
+```
 Guarda solo lo mutable: `stock`, `pedidos`, `newsletter`, `mensajes`. El catálogo NO está en la BD
 (vive en `public/data/*.json`).
 
@@ -45,6 +50,14 @@ también el pago (Stripe) y el panel `/admin/`.
 Stripe → Developers → Webhooks → Add endpoint:
 `https://TU-DOMINIO/api/stripe-webhook`, evento `checkout.session.completed`. Copia el signing
 secret a `STRIPE_WEBHOOK_SECRET`.
+
+### Todo esto se gestiona desde el dashboard de Stripe (sin tocar código)
+- **Métodos de pago** (Settings → Payment methods): tarjeta + Apple/Google Pay vienen de serie;
+  activa **Bizum**, PayPal, etc. y aparecen solos en el checkout.
+- **Cupones** (Products → Coupons → Promotion codes): crea códigos (%, fijo, caducidad, límite de
+  usos); el checkout ya muestra el campo "¿tienes un código?".
+- **Recibos por email** (Settings → Emails): activa "Successful payments" para que el comprador
+  reciba recibo automático (solo en modo live).
 
 ## Dominio propio
 Dashboard → el Worker → **Settings → Domains & Routes → Add → Custom domain**. Si el DNS está en
