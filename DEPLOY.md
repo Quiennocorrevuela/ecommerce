@@ -34,6 +34,10 @@ npm run db:init:local    # local (desarrollo)
 npm run db:migrate       # remoto (una sola vez; falla con "duplicate column" si ya está aplicada)
 npm run db:migrate:local # local
 ```
+
+**Backup automático:** `.github/workflows/backup-d1.yml` exporta la base cada lunes como
+artefacto (90 días). Requiere el secret `CLOUDFLARE_API_TOKEN` en GitHub (instrucciones en el
+propio archivo). Hasta que lo añadas, el job fallará — es esperado.
 Guarda solo lo mutable: `stock`, `pedidos`, `newsletter`, `mensajes`. El catálogo NO está en la BD
 (vive en `public/data/*.json`).
 

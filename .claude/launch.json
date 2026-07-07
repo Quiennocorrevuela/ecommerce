@@ -12,6 +12,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["wrangler", "dev", "--port", "8787"],
       "port": 8787
+    },
+    {
+      "name": "tatara",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["wrangler", "dev", "--cwd", "/Users/meowrhino/Documents/GitHub/tatara", "--port", "8790", "--persist-to", "/private/tmp/claude-501/-Users-meowrhino-Desktop-quienNoCorre/4bec72a4-3690-473a-a0b1-0d82c49ef410/scratchpad/tatara-state"],
+      "port": 8790
     }
   ]
 }
