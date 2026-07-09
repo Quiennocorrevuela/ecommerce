@@ -17,7 +17,7 @@ const NAV = [
   { href: "newsletter.html", key: "nav.newsletter" },
   { href: "contacto.html", key: "nav.contacto" },
   // { href: "autores.html", key: "nav.autoras" }, // oculto temporalmente hasta tener las bios (2026-07-09)
-  // { href: "legal.html", key: "nav.legal" }, // oculto temporalmente hasta rellenar los datos fiscales (2026-07-09)
+  { href: "legal.html", key: "nav.legal" },
 ];
 
 function build() {
