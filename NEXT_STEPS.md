@@ -30,10 +30,9 @@ tienda**, en orden. Nada de esto es programar: son claves, contenido y comprobac
 - [ ] Dominio propio: dashboard → Worker → Settings → Domains & Routes.
 
 ## 4. Mantenimiento
-- [ ] **Backup automático**: añadir el secret `CLOUDFLARE_API_TOKEN` en GitHub → repo →
-      Settings → Secrets → Actions (token custom de Cloudflare: My Profile → API Tokens →
-      permiso Account → D1 → Edit). Hasta entonces, el workflow del lunes falla (esperado).
-      Este backup cubre también a tatara (comparten la base `shop`).
+- **Backup**: sin backup automático (se quitó para simplificar). Red de seguridad: *Time Travel*
+      de D1 (30 días) + los pagos quedan en Stripe. Backup manual puntual si se quiere:
+      `npx wrangler d1 export shop --remote --output=backup.sql`.
 - [ ] Opcional: conectar Workers Builds (dashboard → Worker → Settings → Builds) para que cada
       push despliegue solo. Ver DEPLOY.md.
 - [ ] Limpieza acordada: quitar `WEB_MANU/` y `referencias/` del repo.

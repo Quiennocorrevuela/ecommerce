@@ -36,9 +36,8 @@ npm run db:migrate       # remoto (una sola vez; falla con "duplicate column" si
 npm run db:migrate:local # local
 ```
 
-**Backup automático:** `.github/workflows/backup-d1.yml` exporta la base cada lunes como
-artefacto (90 días). Requiere el secret `CLOUDFLARE_API_TOKEN` en GitHub (instrucciones en el
-propio archivo). Hasta que lo añadas, el job fallará — es esperado.
+**Backup:** la D1 tiene *Time Travel* (restaura hasta 30 días atrás) y los pedidos/pagos también
+están en Stripe. Para un backup manual puntual: `npx wrangler d1 export shop --remote --output=backup.sql`.
 Guarda solo lo mutable: `stock`, `pedidos`, `newsletter`, `mensajes`. El catálogo NO está en la BD
 (vive en `public/data/*.json`).
 
