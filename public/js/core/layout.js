@@ -51,11 +51,12 @@ function build() {
   });
   Array.from(wrap.children).reverse().forEach((el) => document.body.prepend(el));
 
-  // Firma del estudio al pie de todas las páginas.
-  if (!document.querySelector(".qnc-footer")) {
+  // Firma del estudio al pie. No en la página de gracias (confirmación de compra).
+  const page = here.replace(/\.html$/, "");
+  if (page !== "gracias" && !document.querySelector(".qnc-footer")) {
     const footer = document.createElement("footer");
     footer.className = "qnc-footer";
-    footer.innerHTML = `<a href="https://meowrhino.studio" target="_blank" rel="noopener noreferrer">meowrhino.studio</a>`;
+    footer.innerHTML = `ecommerce: <a href="https://meowrhino.studio" target="_blank" rel="noopener noreferrer">meowrhino.studio</a>`;
     document.body.appendChild(footer);
   }
 }
