@@ -53,5 +53,11 @@ contenido son objetos `{es,ca,en}` dentro de los JSON.
 ## Admin
 `/admin/` con el `ADMIN_TOKEN`: pedidos, stock, altas de newsletter y mensajes de contacto.
 
+## Newsletter
+La página `/newsletter` **recoge** emails y los guarda en D1 (sin duplicados); se ven en
+`/admin/newsletter.html`. **No envía** boletines por sí sola: es una lista de suscripción. Para
+mandar un envío se exporta la lista y se usa una herramienta externa (Mailchimp, Buttondown…).
+No hay doble opt-in ni baja automática — tenerlo en cuenta en la política de privacidad.
+
 ---
 Construido a partir de [semillaEcommerce](https://github.com/meowrhino/semillaEcommerce).
