@@ -687,3 +687,21 @@ main.lang-fade { opacity: 0; }
 .btn-pagar {
   font-weight: 500;
 }
+
+/* ─── firma del estudio ─────────────────────────────────── */
+.qnc-footer {
+  margin-top: 4rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.qnc-footer a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.qnc-footer a:hover { color: var(--fg); }

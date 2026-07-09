@@ -50,6 +50,14 @@ function build() {
     if (a.getAttribute("href") === here) a.classList.add("is-active");
   });
   Array.from(wrap.children).reverse().forEach((el) => document.body.prepend(el));
+
+  // Firma del estudio al pie de todas las páginas.
+  if (!document.querySelector(".qnc-footer")) {
+    const footer = document.createElement("footer");
+    footer.className = "qnc-footer";
+    footer.innerHTML = `<a href="https://meowrhino.studio" target="_blank" rel="noopener noreferrer">meowrhino.studio</a>`;
+    document.body.appendChild(footer);
+  }
 }
 
 /** Cambia de idioma con un fundido suave del contenido. */
