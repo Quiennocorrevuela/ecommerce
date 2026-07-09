@@ -14,7 +14,7 @@ directory = "./public"
 [[d1_databases]]
 binding = "DB"
 database_name = "shop"
-database_id = "6c1c1e51-76d4-4ab3-a912-7e7ad2749eca"
+database_id = "57f55099-2e3f-4ea5-827f-232224cf3f70"
 
 # Variables NO secretas (se pueden commitear). Vacío = el Worker usa el origen de la petición.
 [vars]

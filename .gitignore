@@ -20,3 +20,7 @@ node_modules/
 # macOS
 .DS_Store
 **/.DS_Store
+
+# Material fuente (no se sirve; se conserva local pero fuera del repo)
+WEB_MANU/
+referencias/
