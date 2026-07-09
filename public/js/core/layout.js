@@ -16,7 +16,7 @@ const NAV = [
   { href: "calendario.html", key: "nav.calendario" },
   { href: "newsletter.html", key: "nav.newsletter" },
   { href: "contacto.html", key: "nav.contacto" },
-  { href: "autores.html", key: "nav.autoras" },
+  // { href: "autores.html", key: "nav.autoras" }, // oculto temporalmente hasta tener las bios (2026-07-09)
   { href: "legal.html", key: "nav.legal" },
 ];
 

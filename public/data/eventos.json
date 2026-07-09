@@ -61,5 +61,23 @@
     "fechaInicio": "2026-06-18",
     "fechaFin": "2026-06-18",
     "cartel": "img/eventos/convocatoria-2026.webp"
+  },
+  {
+    "id": "xiringuito-2026",
+    "titulo": "Xiringuito",
+    "lugar": "Can Basté, Barcelona",
+    "tipo": { "es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair" },
+    "fechaInicio": "2026-07-04",
+    "fechaFin": "2026-07-04",
+    "cartel": "img/eventos/xiringuito-2026.webp"
+  },
+  {
+    "id": "fiebre-2026",
+    "titulo": "Fiebre",
+    "lugar": "La Casa Encendida, Madrid",
+    "tipo": { "es": "feria de fotolibros", "ca": "fira de fotollibres", "en": "photobook fair" },
+    "fechaInicio": "2026-09-18",
+    "fechaFin": "2026-09-20",
+    "cartel": "img/eventos/fiebre-2026.webp"
   }
 ]
