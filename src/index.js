@@ -20,6 +20,7 @@ import Stripe from "stripe";
 
 import productos from "../public/data/productos.json";
 import envios from "../public/data/envios.json";
+import { normalizeStockInicial, precioEnvio, nombreDeZona, esZonaRecogida } from "../public/js/core/shared.js";
 
 const app = new Hono().basePath("/api");
 
@@ -29,17 +30,6 @@ const toCents = (eur) => Math.round(Number(eur) * 100);
 /** Nombre canónico de un producto (para Stripe / pedidos): título en ES. */
 function nombreCanonico(p) {
   return Array.isArray(p.titulo) ? p.titulo.join(" ") : p.nombre || String(p.id);
-}
-
-/** stockInicial: número → {_: n}; objeto {talla: n} → normalizado. */
-function normalizeStockInicial(si) {
-  if (typeof si === "number" && Number.isFinite(si)) return { _: Math.max(0, si) };
-  if (si && typeof si === "object") {
-    const out = {};
-    for (const [k, v] of Object.entries(si)) out[k] = Math.max(0, Number(v) || 0);
-    return out;
-  }
-  return {};
 }
 
 function findProducto(id) {
@@ -66,14 +56,6 @@ const PAISES_STRIPE = [
 /** Países permitidos para una zona: su lista `paises` del JSON, o todos los de Stripe. */
 function paisesDeZona(zona) {
   return Array.isArray(zona.paises) && zona.paises.length ? zona.paises : PAISES_STRIPE;
-}
-
-/** Precio de envío según zona (con tramos por peso en gramos) y peso total. */
-function precioEnvio(zona, gramos) {
-  if (!zona || !Array.isArray(zona.tramos)) return 0;
-  const tramos = [...zona.tramos].sort((a, b) => a.hasta - b.hasta);
-  for (const tr of tramos) if (gramos <= tr.hasta) return Number(tr.precio) || 0;
-  return Number(tramos[tramos.length - 1]?.precio) || 0;
 }
 
 /** Inicializa stock en D1 desde stockInicial. Idempotente, memoizado por isolate.
@@ -184,7 +166,7 @@ app.post("/crear-sesion", async (c) => {
   const zonaEnvio = envios.find((e) => e.zona === envioReq.zona);
   if (!zonaEnvio) return c.json({ error: "zona de envío desconocida" }, 400);
   const envioResolved = { zona: zonaEnvio.zona, precio: precioEnvio(zonaEnvio, pesoTotal) };
-  const esRecogida = envioResolved.zona === "recogida";
+  const esRecogida = esZonaRecogida(zonaEnvio);
 
   if (!c.env.STRIPE_SECRET_KEY) return c.json({ error: "pagos no configurados" }, 503);
   const stripe = new Stripe(c.env.STRIPE_SECRET_KEY);
@@ -217,7 +199,7 @@ app.post("/crear-sesion", async (c) => {
             {
               shipping_rate_data: {
                 type: "fixed_amount",
-                display_name: zonaEnvio.nombre?.es || envioResolved.zona,
+                display_name: nombreDeZona(zonaEnvio),
                 fixed_amount: { amount: toCents(envioResolved.precio), currency: "eur" },
               },
             },

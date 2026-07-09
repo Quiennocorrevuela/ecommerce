@@ -10,6 +10,10 @@
  *     descripcion:{es,ca,en}, stockInicial, activo }
  */
 import { CONFIG } from "./config.js";
+import { normalizeStockInicial, precioEnvio } from "./shared.js";
+
+// Re-exportadas desde el módulo compartido para no romper quien las importa de aquí (p. ej. checkout.js).
+export { normalizeStockInicial, precioEnvio };
 
 // ─── utilidades ──────────────────────────────────────────
 export function escapeHtml(str) {
@@ -29,17 +33,6 @@ export function formatPrice(eur) {
   }).format(Number(eur) || 0);
 }
 
-/** stockInicial: número → {_: n}; objeto {talla: n} → normalizado. */
-export function normalizeStockInicial(si) {
-  if (typeof si === "number" && Number.isFinite(si)) return { _: Math.max(0, si) };
-  if (si && typeof si === "object") {
-    const out = {};
-    for (const [k, v] of Object.entries(si)) out[k] = Math.max(0, Number(v) || 0);
-    return out;
-  }
-  return {};
-}
-
 export function stockTotal(p) {
   return Object.values(p.stockByTalla || {}).reduce((n, v) => n + Number(v || 0), 0);
 }
@@ -51,14 +44,6 @@ export function stockTotal(p) {
  */
 export function estaAgotado(p) {
   return p.activo !== false && (p.agotado === true || stockTotal(p) <= 0);
-}
-
-/** Precio de envío según zona (tramos por peso en gramos) y peso total. */
-export function precioEnvio(zona, gramos) {
-  if (!zona || !Array.isArray(zona.tramos)) return 0;
-  const tramos = [...zona.tramos].sort((a, b) => a.hasta - b.hasta);
-  for (const tr of tramos) if (gramos <= tr.hasta) return Number(tr.precio) || 0;
-  return Number(tramos[tramos.length - 1]?.precio) || 0;
 }
 
 // ─── catálogo ────────────────────────────────────────────
