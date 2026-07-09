@@ -179,27 +179,5 @@
     },
     "stockInicial": 50,
     "activo": false
-  },
-  {
-    "id": "gatito",
-    "titulo": ["🐱 gatito"],
-    "autor": "test",
-    "autorId": "test",
-    "precio": 1.00,
-    "peso": 10,
-    "imgs": [
-      "img/productos/gatito/1.svg"
-    ],
-    "ficha": {
-      "editorial": "quien no corre, vuela",
-      "edicion": { "es": "producto de prueba", "ca": "producte de prova", "en": "test product" }
-    },
-    "descripcion": {
-      "es": "Producto de prueba para testear el flujo de compra. Borrar antes de abrir la tienda. 🐱",
-      "ca": "Producte de prova per testar el flux de compra. Esborrar abans d'obrir la botiga. 🐱",
-      "en": "Test product to check the checkout flow. Delete before launch. 🐱"
-    },
-    "stockInicial": 99,
-    "activo": true
   }
 ]

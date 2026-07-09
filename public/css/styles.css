@@ -609,7 +609,15 @@ main.lang-fade { opacity: 0; }
 .qnc-toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
 /* ---------- Páginas de mensaje ---------- */
-.mensaje { text-align: center; padding: 5rem 1.5rem; }
+.mensaje {
+  min-height: calc(100dvh - var(--hdr-h));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
 .mensaje h1 { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
 
 /* ---------- Admin ---------- */
