@@ -613,10 +613,132 @@ main.lang-fade { opacity: 0; }
 .mensaje h1 { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
 
 /* ---------- Admin ---------- */
-.admin { max-width: var(--maxw); }
-.admin fieldset { border: 1px solid var(--line); padding: 1rem; margin-bottom: 1rem; }
-.admin table { width: 100%; border-collapse: collapse; }
-.admin th, .admin td { padding: 0.5rem; border-bottom: 1px solid var(--line); text-align: left; font-size: 0.9rem; }
+/* ─── admin ─────────────────────────────────────────────── */
+.admin {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.4rem 1.2rem 5rem;
+  font-family: var(--font-sans);
+  color: var(--fg);
+}
+.admin h1 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 2rem;
+  margin: 0 0 0.3rem;
+}
+.admin h2 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.15rem;
+  margin: 0 0 0.8rem;
+  width: 100%;
+}
+.admin a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); }
+.admin a:hover { border-color: var(--fg); }
+/* enlace "volver" */
+.admin > p { margin: 0.2rem 0 1.8rem; }
+.admin > p a { border: 0; color: var(--muted); }
+.admin > p a:hover { color: var(--fg); }
+
+/* caja de token (índice) */
+.admin section {
+  border: 1px solid var(--line);
+  padding: 1.3rem;
+  margin-bottom: 1.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+/* inputs */
+.admin input[type="password"],
+.admin input[type="number"] {
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--fg);
+  background: #f4f4f4;
+}
+.admin input[type="password"] { min-width: 240px; }
+
+/* botones */
+.admin button {
+  border: 0;
+  background: var(--accent);
+  color: var(--accent-fg);
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  padding: 0.5rem 1.4rem;
+}
+.admin button:hover { opacity: 0.85; }
+#guardar { margin-top: 1.6rem; }
+
+/* navegación del índice como fichas */
+.admin nav a {
+  border: 1px solid var(--line);
+  padding: 0.7rem 1.3rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.05rem;
+}
+.admin nav a:hover { border-color: var(--fg); background: var(--fg); color: var(--bg); }
+
+/* stock: fieldsets como tarjetas */
+.admin fieldset {
+  border: 1px solid var(--line);
+  padding: 0.8rem 1.2rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.admin legend {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  padding: 0 0.4rem;
+}
+.admin fieldset label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 1.4rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.admin fieldset input[type="number"] { width: 5rem; }
+
+/* tablas */
+.admin table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.admin thead th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--fg);
+}
+.admin tbody td {
+  padding: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.admin tbody tr:hover { background: #fafafa; }
+.admin select {
+  font: inherit;
+  padding: 0.35rem 0.4rem;
+  border: 1px solid var(--fg);
+  background: #fff;
+}
+
+/* móvil: tabla con scroll horizontal */
+@media (max-width: 640px) {
+  .admin table { display: block; overflow-x: auto; white-space: nowrap; }
+}
 
 /* ============================================================
    Responsive
