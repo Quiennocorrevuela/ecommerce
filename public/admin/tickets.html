@@ -21,6 +21,8 @@
     <script>
       const token = localStorage.getItem("qnc.admin") || "";
       const ESTADOS = ["pendiente", "enviado", "entregado", "cancelado"];
+      // Escapa datos del comprador (nombre/dirección de Stripe) antes de meterlos en innerHTML.
+      const esc = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
       const dirTxt = (envio) => {
         if (!envio) return "—";
@@ -45,10 +47,10 @@
             (p) => `
             <tr>
               <td>${new Date(p.createdAt).toLocaleString()}</td>
-              <td>${p.email || "—"}</td>
+              <td>${esc(p.email) || "—"}</td>
               <td>${((p.amount_total || 0) / 100).toFixed(2)} €</td>
-              <td>${(p.items || []).map((i) => `${i.nombre || i.id} ×${i.cantidad}`).join(", ")}</td>
-              <td>${dirTxt(p.envio)}</td>
+              <td>${(p.items || []).map((i) => `${esc(i.nombre || i.id)} ×${Number(i.cantidad) || 0}`).join(", ")}</td>
+              <td>${esc(dirTxt(p.envio))}</td>
               <td>
                 <select data-pedido="${p.id}">
                   ${ESTADOS.map((e) => `<option value="${e}" ${e === (p.estado || "pendiente") ? "selected" : ""}>${e}</option>`).join("")}

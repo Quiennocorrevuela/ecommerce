@@ -5,7 +5,7 @@ Tienda online de la editorial de fanzines **Quien no corre, vuela**.
 Web + API en un único **Cloudflare Worker** (con *static assets*) · catálogo en JSON · **D1** para
 stock/pedidos/newsletter/mensajes · **Stripe** para el pago. Trilingüe **ES / CA / EN**.
 
-**En vivo:** https://quien-no-corre-vuela.manuellatourf.workers.dev
+**En vivo:** https://quiennocorrevuela.com · auto-deploy en cada `git push` (Workers Builds)
 
 ## Estructura
 ```

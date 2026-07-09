@@ -3,7 +3,7 @@
 Stack: **Cloudflare Worker** (con *static assets*) + **D1** (base de datos) + **Stripe** (pagos).
 Un solo Worker sirve la web (`public/`) y la API (`/api/*`). Todo gratis bajo una cuenta de Cloudflare.
 
-**Ya está desplegado:** https://quien-no-corre-vuela.manuellatourf.workers.dev
+**En vivo:** https://quiennocorrevuela.com (cuenta de Cloudflare de la clienta).
 
 ## Cómo está montado
 ```
@@ -19,9 +19,10 @@ npm run deploy     # = npx wrangler deploy  → publica el Worker
 ```
 También: `npm run preview` (maqueta en local, http://localhost:8123) o `npm run dev` (Worker local).
 
-### Opción: auto-deploy desde GitHub (como tus otros proyectos)
-Dashboard → el Worker `quien-no-corre-vuela` → **Settings → Builds → Connect** → repo
-`meowrhino/quien-no-corre-vuela`, rama `main`. A partir de ahí, cada `git push` despliega solo.
+### Auto-deploy desde GitHub (ya conectado)
+El Worker está conectado por **Workers Builds** al repo `Quiennocorrevuela/ecommerce` (rama `main`):
+cada `git push` despliega solo, sin tocar la CLI. El repo local hace *push doble* → sube a la vez a
+`Quiennocorrevuela/ecommerce` (dispara el deploy) y a `meowrhino/quien-no-corre-vuela` (espejo).
 
 ## Base de datos (D1)
 Ya creada (`shop`) y con tablas aplicadas. Si alguna vez hay que recrearlas:

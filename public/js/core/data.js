@@ -2,7 +2,7 @@
  * core/data.js — capa de datos (catálogo, autoras, eventos, envíos) + utilidades.
  *
  * Estrategia JAMstack: el catálogo se lee de los JSON estáticos del repo, así la web se
- * previsualiza sin Functions. El stock vivo se pide a /api/stock; si no está disponible,
+ * previsualiza sin backend. El stock vivo se pide a /api/stock; si no está disponible,
  * se cae a stockInicial declarado en el propio JSON.
  *
  * Modelo de producto (data/productos.json):
@@ -68,13 +68,13 @@ async function getJSON(path) {
   return res.json();
 }
 
-/** Intenta enriquecer con el stock vivo de la API; si no hay Functions, devuelve null. */
+/** Intenta enriquecer con el stock vivo de la API; si no hay backend, devuelve null. */
 async function stockVivo() {
   try {
     const res = await fetch(`${CONFIG.API_BASE}/stock`);
     if (res.ok) return await res.json();
   } catch {
-    /* preview estático sin Functions */
+    /* preview estático sin backend */
   }
   return null;
 }
