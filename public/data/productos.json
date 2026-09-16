@@ -162,22 +162,28 @@
     "autor": "Andrea Carilla",
     "autorId": "andrea-carilla",
     "precio": 12.00,
-    "peso": 130,
-    "imgs": [],
+    "peso": 60,
+    "imgs": [
+      "img/productos/no-time-left-for-the-square/1.webp",
+      "img/productos/no-time-left-for-the-square/2.webp",
+      "img/productos/no-time-left-for-the-square/3.webp",
+      "img/productos/no-time-left-for-the-square/4.webp",
+      "img/productos/no-time-left-for-the-square/5.webp"
+    ],
     "ficha": {
       "editorial": "quien no corre, vuela",
-      "encuadernacion": { "es": "", "ca": "", "en": "" },
-      "paginas": null,
-      "medidas": "148 × 210 mm",
-      "anio": { "es": "julio 2026", "ca": "juliol 2026", "en": "July 2026" },
-      "edicion": { "es": "1ª edición · 50 copias", "ca": "1a edició · 50 còpies", "en": "1st edition · 50 copies" }
+      "encuadernacion": { "es": "cosido", "ca": "cosit", "en": "sewn-bound" },
+      "paginas": 24,
+      "medidas": "105 × 148 mm",
+      "anio": { "es": "septiembre 2026", "ca": "setembre 2026", "en": "September 2026" },
+      "edicion": { "es": "1ª edición · 30 copias", "ca": "1a edició · 30 còpies", "en": "1st edition · 30 copies" }
     },
     "descripcion": {
       "es": "Próximamente.",
       "ca": "Pròximament.",
       "en": "Coming soon."
     },
-    "stockInicial": 50,
+    "stockInicial": 30,
     "activo": false
   }
 ]
