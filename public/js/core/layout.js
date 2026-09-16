@@ -51,9 +51,10 @@ function build() {
   });
   Array.from(wrap.children).reverse().forEach((el) => document.body.prepend(el));
 
-  // Firma del estudio al pie. No en la página de gracias (confirmación de compra).
+  // Firma del estudio al pie. Solo en "nosotras": es un crédito, no una marca
+  // que tenga que ir debajo de cada fanzine.
   const page = here.replace(/\.html$/, "");
-  if (page !== "gracias" && !document.querySelector(".qnc-footer")) {
+  if (page === "about" && !document.querySelector(".qnc-footer")) {
     const footer = document.createElement("footer");
     footer.className = "qnc-footer";
     footer.innerHTML = `ecommerce: <a href="https://meowrhino.studio" target="_blank" rel="noopener noreferrer">meowrhino.studio</a>`;

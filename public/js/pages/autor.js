@@ -3,7 +3,7 @@
  */
 import { mountLayout } from "../core/layout.js";
 import { I18N } from "../core/i18n.js";
-import { fetchAutores, fetchCatalogoRaw, escapeHtml } from "../core/data.js";
+import { fetchAutores, fetchCatalogoCompleto, escapeHtml } from "../core/data.js";
 import { productoCardHTML } from "../core/ui.js";
 
 mountLayout();
@@ -36,11 +36,9 @@ async function init() {
   if (!head) return;
   if (!id) { head.innerHTML = `<p class="estado">${I18N.s("error.generic")}</p>`; return; }
   try {
-    const [autores, catalogo] = await Promise.all([fetchAutores(), fetchCatalogoRaw()]);
+    const [autores, catalogo] = await Promise.all([fetchAutores(), fetchCatalogoCompleto()]);
     autor = autores.find((a) => a.id === id);
-    obras = catalogo
-      .filter((p) => p.autorId === id)
-      .map((p) => ({ ...p, titulo: Array.isArray(p.titulo) ? p.titulo : [p.titulo], imgs: Array.isArray(p.imgs) ? p.imgs : [] }));
+    obras = catalogo.filter((p) => p.autorId === id);
   } catch (err) {
     console.error("autor", err);
     head.innerHTML = `<p class="estado">${I18N.s("error.load")}</p>`;

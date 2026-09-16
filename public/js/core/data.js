@@ -90,5 +90,13 @@ export const fetchEnvios = () => getJSON("data/envios.json");
 export const fetchAutores = () => getJSON("data/autores.json");
 export const fetchEventos = () => getJSON("data/eventos.json");
 
-/** Catálogo crudo sin enriquecer (para páginas que solo necesitan listar). */
-export const fetchCatalogoRaw = () => getJSON("data/productos.json");
+/**
+ * Catálogo entero con el stock ya inyectado y SIN filtrar por `activo`.
+ * La ficha de autora lo usa porque enseña también sus "próximamente"; si se
+ * leyera el JSON crudo, `stockByTalla` vendría vacío y estaAgotado() marcaría
+ * agotado todo lo que hay a la venta.
+ */
+export async function fetchCatalogoCompleto() {
+  const [catalogo, stock] = await Promise.all([getJSON("data/productos.json"), stockVivo()]);
+  return catalogo.map((p) => hydrate(p, stock));
+}
