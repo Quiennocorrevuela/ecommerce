@@ -161,7 +161,7 @@
     "titulo": ["No time left for the square"],
     "autor": "Andrea Carilla",
     "autorId": "andrea-carilla",
-    "precio": 12.00,
+    "precio": 14.00,
     "peso": 60,
     "imgs": [
       "img/productos/no-time-left-for-the-square/1.webp",
@@ -179,11 +179,11 @@
       "edicion": { "es": "1ª edición · 30 copias", "ca": "1a edició · 30 còpies", "en": "1st edition · 30 copies" }
     },
     "descripcion": {
-      "es": "Próximamente.",
-      "ca": "Pròximament.",
-      "en": "Coming soon."
+      "es": "No time left for the square, de Andrea Carilla, recopila imágenes de personas transitando y habitando el espacio público: permaneciendo en él sin un propósito concreto, recorriéndolo simplemente por el hecho de hacerlo. Un gesto cotidiano que, en una ciudad cada vez más acelerada, se convierte en un privilegio.\n\nEl proyecto observa a quienes hacen uso de un tiempo que parece extinguido. A través de sus imágenes, Andrea Carilla se detiene en pequeños gestos de una cotidianeidad menguante y en formas de estar que no responden necesariamente a una finalidad.\n\nFrente a una ciudad que parece haber olvidado cómo detenerse, permanecer, esperar o simplemente estar se convierte en una forma silenciosa de resistencia.",
+      "ca": "No time left for the square, d’Andrea Carilla, recopila imatges de persones transitant i habitant l’espai públic: romanent-hi sense un propòsit concret, recorrent-lo simplement pel fet de fer-ho. Un gest quotidià que, en una ciutat cada vegada més accelerada, es converteix en un privilegi.\n\nEl projecte observa aquelles persones que fan ús d’un temps que sembla extingit. A través de les seves imatges, Andrea Carilla es deté en petits gestos d’una quotidianitat minvant i en formes d’estar que no responen necessàriament a cap finalitat.\n\nDavant d’una ciutat que sembla haver oblidat com aturar-se, romandre, esperar o simplement estar es converteix en una forma silenciosa de resistència.",
+      "en": "No time left for the square, by Andrea Carilla, brings together images of people moving through and inhabiting public space: remaining there without a specific purpose, simply moving through it for the sake of doing so. A daily gesture that, in an increasingly accelerated city, becomes a privilege.\n\nThe project observes those who make use of a time that seems to have disappeared. Through her images, Andrea Carilla focuses on small gestures of a fading everyday life and on ways of being that do not necessarily serve a specific purpose.\n\nIn the face of a city that seems to have forgotten how to stop, remain, wait, or simply be, staying becomes a quiet form of resistance."
     },
     "stockInicial": 30,
-    "activo": false
+    "activo": true
   }
 ]
