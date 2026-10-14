@@ -55,7 +55,7 @@ Los textos van en los tres idiomas: `es`, `ca`, `en`. Si uno se queda vacío
 2. Pulsa el **lápiz** ✏️ (arriba a la derecha).
 3. Cambia lo que quieras.
 4. Pulsa **Commit changes…** (botón verde), escribe en una línea qué has
-   cambiado ("bio de Sofia") y otra vez **Commit changes**.
+   cambiado ("bio de Mia") y otra vez **Commit changes**.
 
 **Para subir fotos**: entra en la carpeta (`public/img/productos/<fanzine>/`),
 **Add file → Upload files**, arrastra las fotos y **Commit changes**. Para un
@@ -78,7 +78,7 @@ las fotos dentro, entra en `public/img/productos/` y arrastra la carpeta entera.
 | `id` | su nombre en la web (ver arriba) | `"no-time-left-for-the-square"` |
 | `titulo` | el título; cada elemento, una línea | `["No time left", "for the square"]` |
 | `autor` | el nombre de la autora, tal cual se ve | `"Andrea Carilla"` |
-| `autorId` | el `id` de la autora en `autores.json` | `"andrea-carilla"` |
+| `autorId` | el `id` de la autora en `autores.json`; si aún no tiene página, ponlo igual: el nombre se enlazará solo cuando la añadas | `"andrea-carilla"` |
 | `precio` | en euros, con punto | `14.00` |
 | `peso` | en gramos, para calcular el envío | `60` |
 | `imgs` | las fotos, en orden; la primera es la portada y la que sale al compartir | `["img/productos/<id>/1.webp", …]` |

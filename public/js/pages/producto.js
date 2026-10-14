@@ -4,7 +4,7 @@
  */
 import { mountLayout } from "../core/layout.js";
 import { I18N } from "../core/i18n.js";
-import { fetchProducto, escapeHtml, formatPrice, estaAgotado } from "../core/data.js";
+import { fetchProducto, fetchAutores, escapeHtml, formatPrice, estaAgotado } from "../core/data.js";
 import { addToCart } from "../core/cart.js";
 import { tituloHTML, toast } from "../core/ui.js";
 
@@ -13,6 +13,7 @@ mountLayout();
 const root = document.querySelector("[data-producto]");
 const id = new URLSearchParams(location.search).get("id");
 let p = null;
+let conPagina = false; // la autora tiene su página en autores.json
 let idx = 0;
 
 function fichaRows() {
@@ -64,7 +65,9 @@ function infoHTML() {
       ${btn}
       <h1 class="producto-titulo">${tituloHTML(p.titulo)}</h1>
       <div class="producto-meta">
-        <a class="autor" href="autor.html?id=${encodeURIComponent(p.autorId)}">${escapeHtml(p.autor)}</a>
+        ${conPagina
+          ? `<a class="autor" href="autor.html?id=${encodeURIComponent(p.autorId)}">${escapeHtml(p.autor)}</a>`
+          : `<span class="autor">${escapeHtml(p.autor)}</span>`}
         <span class="precio">${formatPrice(p.precio)}</span>
       </div>
       <div class="producto-desc">${escapeHtml(I18N.t(p.descripcion))}</div>
@@ -142,7 +145,9 @@ async function init() {
   if (!root) return;
   if (!id) { root.innerHTML = `<p class="estado">${I18N.s("error.generic")}</p>`; return; }
   try {
-    p = await fetchProducto(id);
+    const [prod, autores] = await Promise.all([fetchProducto(id), fetchAutores().catch(() => [])]);
+    p = prod;
+    conPagina = !!p && autores.some((a) => a.id === p.autorId);
   } catch (err) {
     console.error(err);
     root.innerHTML = `<p class="estado">${I18N.s("error.load")}</p>`;

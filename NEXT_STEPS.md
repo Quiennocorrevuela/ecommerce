@@ -44,8 +44,8 @@ que acordarse de mirar `/admin/tickets.html`.
       plazo de preparación).
 - [ ] Precios reales en `productos.json`: black-cover, i-am-the-center (no-time-left ya: 14 €).
 - [ ] Pesos reales (`peso`, gramos) y tarifas reales en `envios.json` (ahora estimaciones).
-- [ ] Bios y retratos de Andrea Carilla y Sofia Milena (`autores.json`; Mia ya está, 2026-10-14).
-      Mientras, su página enseña solo el nombre y sus fanzines.
+- [x] Autoras: solo Mia Sala-Patau (2026-10-14). Andrea Carilla y Sofia Milena eran de prueba y
+      se quitaron; sus fanzines salen igual, con el nombre sin enlace.
 
 ## 3. Prueba y apertura
 - [ ] Compra de prueba en modo test con un fanzine (tarjeta `4242 4242 4242 4242`) → el pedido

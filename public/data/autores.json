@@ -1,25 +1,5 @@
 [
   {
-    "id": "andrea-carilla",
-    "nombre": "Andrea Carilla",
-    "foto": "",
-    "bio": {
-      "es": "",
-      "ca": "",
-      "en": ""
-    }
-  },
-  {
-    "id": "sofia-milena",
-    "nombre": "Sofia Milena",
-    "foto": "",
-    "bio": {
-      "es": "",
-      "ca": "",
-      "en": ""
-    }
-  },
-  {
     "id": "mia-sala-patau",
     "nombre": "Mia Sala-Patau",
     "foto": "img/autores/mia-sala-patau.webp",
