@@ -2,7 +2,7 @@
  * src/index.js — backend en un Cloudflare Worker (Hono).
  *
  * Worker con "static assets": Cloudflare sirve `public/` (la web) automáticamente y este
- * Worker solo atiende las rutas `/api/*`. Cualquier otra ruta no encontrada cae aquí y devuelve 404.
+ * Worker atiende las rutas `/api/*`, y las páginas HTML pasan por src/seo.js para llevar sus meta.
  *
  * Filosofía JAMstack (de la semilla):
  *   - CATÁLOGO (productos, precios, peso, descripciones i18n) → public/data/productos.json (source of truth).
@@ -32,6 +32,7 @@ import {
   notifPedidoEnviado,
   enSegundoPlano,
 } from "./notify.js";
+import { conMeta, sitemap } from "./seo.js";
 
 const app = new Hono().basePath("/api");
 
@@ -460,5 +461,13 @@ admin.post("/stock-bulk", async (c) => {
 
 app.route("/admin", admin);
 
-// El Worker: Hono atiende /api/*; los assets de public/ los sirve Cloudflare automáticamente.
-export default app;
+// El Worker: Hono atiende /api/*. Las páginas HTML pasan por aquí antes (run_worker_first en
+// wrangler.toml) para llevar sus meta de SEO; img/css/js/data los sirve Cloudflare directo.
+export default {
+  fetch(req, env, ctx) {
+    const url = new URL(req.url);
+    if (url.pathname.startsWith("/api/")) return app.fetch(req, env, ctx);
+    if (url.pathname === "/sitemap.xml") return sitemap(url.origin);
+    return env.ASSETS.fetch(req).then((res) => conMeta(res, url));
+  },
+};

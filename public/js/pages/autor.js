@@ -26,7 +26,7 @@ function render() {
     <div class="info-foto">${f ? `<img src="${f}" alt="${escapeHtml(autor.nombre)}">` : ""}</div>
     <div class="info-texto">
       <p class="lead">${escapeHtml(autor.nombre)}</p>
-      ${I18N.t(autor.bio).split(/\n\s*\n/).map((p) => `<p>${escapeHtml(p)}</p>`).join("")}
+      ${I18N.t(autor.bio).split(/\n\s*\n/).filter(Boolean).map((p) => `<p>${escapeHtml(p)}</p>`).join("")}
     </div>`;
   grid.innerHTML = obras.map(productoCardHTML).join("");
   document.title = `${autor.nombre} · Quien no corre, vuela`;

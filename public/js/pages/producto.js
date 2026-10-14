@@ -64,7 +64,7 @@ function infoHTML() {
       ${btn}
       <h1 class="producto-titulo">${tituloHTML(p.titulo)}</h1>
       <div class="producto-meta">
-        <span class="autor">${escapeHtml(p.autor)}</span>
+        <a class="autor" href="autor.html?id=${encodeURIComponent(p.autorId)}">${escapeHtml(p.autor)}</a>
         <span class="precio">${formatPrice(p.precio)}</span>
       </div>
       <div class="producto-desc">${escapeHtml(I18N.t(p.descripcion))}</div>

@@ -13,15 +13,18 @@ public/            La web (Cloudflare la sirve como static assets)
   *.html           home, producto, checkout, about, newsletter, contacto, autores, autor, calendario…
   js/core/         config · i18n · data · cart · ui · layout   (ES modules)
   js/pages/        un módulo por página
-  css/  img/  admin/
+  css/  img/  fonts/  admin/   (fonts: woff2 propias, nada de Google Fonts)
   data/            ← contenido editable (ver abajo)
-src/index.js       El Worker: solo /api/* (Hono). El resto lo sirven los assets de public/.
+src/index.js       El Worker: /api/* (Hono). img/css/js/data los sirven los assets de public/ directos.
+src/seo.js         Meta de SEO y previews en cada página HTML (title, description, og:*) + /sitemap.xml.
 src/notify.js      Avisos por email (pedidos y mensajes). Apagado si EMAIL_TIENDA está vacío.
 wrangler.toml      main, [assets] directory=public, binding D1 (DB → shop)
 ```
 El material fuente (`WEB_MANU/`, `referencias/`) queda en la raíz y **no** se publica.
 
 ## El contenido vive en JSON (no en la base de datos)
+Cómo editarlo, explicado para Andrea: **[GUIA.md](GUIA.md)**.
+
 Para gestionar la tienda se editan archivos en `public/data/` y se hace deploy:
 
 | Archivo | Qué |

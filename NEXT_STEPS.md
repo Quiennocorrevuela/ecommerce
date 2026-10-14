@@ -42,15 +42,16 @@ que acordarse de mirar `/admin/tickets.html`.
 ## 2. Contenido (cliente)
 - [ ] `public/legal.html`: sustituir los `[CORCHETES]` (nombre fiscal, NIF, dirección, email,
       plazo de preparación).
-- [ ] Precios reales en `productos.json`: black-cover, i-am-the-center, no-time-left (placeholder).
+- [ ] Precios reales en `productos.json`: black-cover, i-am-the-center (no-time-left ya: 14 €).
 - [ ] Pesos reales (`peso`, gramos) y tarifas reales en `envios.json` (ahora estimaciones).
-- [ ] Bios de autoras (`autores.json` sigue con TODO).
+- [ ] Bios y retratos de Andrea Carilla y Sofia Milena (`autores.json`; Mia ya está, 2026-10-14).
+      Mientras, su página enseña solo el nombre y sus fanzines.
 
 ## 3. Prueba y apertura
-- [ ] Compra de prueba en modo test con `gatito` (tarjeta `4242 4242 4242 4242`) → el pedido
+- [ ] Compra de prueba en modo test con un fanzine (tarjeta `4242 4242 4242 4242`) → el pedido
       sale en `/admin/tickets.html` con dirección, zona y estado, y **llega el aviso por email**
       (si el punto 1bis está hecho).
-- [ ] Borrar `gatito` de `productos.json` (+ su imagen) y push.
+- [x] Borrar `gatito` de `productos.json` (+ su imagen) y push.
 - [ ] Cambiar a la clave live (`wrangler secret put STRIPE_SECRET_KEY` con `sk_live_…`) y
       recrear el webhook en modo live.
 - [ ] Dominio propio: dashboard → Worker → Settings → Domains & Routes.
