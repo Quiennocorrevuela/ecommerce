@@ -1,0 +1,72 @@
+[
+  {
+    "id": "empreses-impreses-2025",
+    "title": "Empreses Impreses amb Presses",
+    "place": "Barcelona",
+    "type": {"es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair"},
+    "start": "2025-05-08"
+  },
+  {
+    "id": "1-metro-zine-2025",
+    "title": "1 metro zine",
+    "place": "Granada",
+    "type": {"es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair"},
+    "start": "2025-05-24"
+  },
+  {
+    "id": "xiringuito-2025",
+    "title": "Xiringuito",
+    "place": "Can Basté, Barcelona",
+    "type": {"es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair"},
+    "start": "2025-05-31"
+  },
+  {
+    "id": "exabrupto-2025",
+    "title": "Exabrupto",
+    "place": "Moià",
+    "type": {
+      "es": "festival experimental de creación contemporánea",
+      "ca": "festival experimental de creació contemporània",
+      "en": "experimental contemporary art festival"
+    },
+    "start": "2025-07-04",
+    "end": "2025-07-05"
+  },
+  {
+    "id": "bala-bilbao-2025",
+    "title": "Bala Bilbao",
+    "place": "Bilbao",
+    "type": {"es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair"},
+    "start": "2025-12-12",
+    "end": "2025-12-14"
+  },
+  {
+    "id": "presentacion-center-world-2026",
+    "title": "Presentación · I am the center of the world",
+    "place": "Kiosko, Barcelona",
+    "type": {"es": "evento de presentación", "ca": "esdeveniment de presentació", "en": "book launch"},
+    "start": "2026-02-01"
+  },
+  {
+    "id": "convocatoria-publicacion-2026",
+    "title": "Convocatoria · publicación de proyecto fotográfico",
+    "place": "online",
+    "type": {"es": "convocatoria", "ca": "convocatòria", "en": "open call"},
+    "start": "2026-06-18"
+  },
+  {
+    "id": "xiringuito-2026",
+    "title": "Xiringuito",
+    "place": "Can Basté, Barcelona",
+    "type": {"es": "feria de autoedición", "ca": "fira d'autoedició", "en": "self-publishing fair"},
+    "start": "2026-07-04"
+  },
+  {
+    "id": "fiebre-2026",
+    "title": "Fiebre",
+    "place": "La Casa Encendida, Madrid",
+    "type": {"es": "feria de fotolibros", "ca": "fira de fotollibres", "en": "photobook fair"},
+    "start": "2026-09-18",
+    "end": "2026-09-20"
+  }
+]

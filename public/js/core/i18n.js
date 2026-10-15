@@ -1,23 +1,16 @@
 /**
- * core/i18n.js — internacionalización (ES / CA / EN).
+ * core/i18n.js — idiomas (ES / CA / EN).
  *
- *  - Idioma actual en localStorage('qnc.lang'), por defecto 'es'.
- *  - I18N.t(obj)  → traduce un campo de datos {es,ca,en} (o string/array) con fallback a es.
- *  - I18N.s(key)  → textos fijos de la interfaz (ver STRINGS).
- *  - I18N.cycle() → rota ES→CA→EN, repinta los [data-i18n] y emite el evento 'qnc:lang'.
- *
- * Las páginas escuchan 'qnc:lang' para re-renderizar su contenido dinámico sin recargar.
+ *  - Cada idioma tiene su dirección: /, /ca/, /en/. El idioma de la página lo dice
+ *    <html lang>, que pone el build; cambiar de idioma es ir a otra dirección.
+ *  - I18N.t(obj) → traduce un campo de datos {es,ca,en} (o string) con caída a es.
+ *  - I18N.s(key) → textos fijos de la interfaz (ver STRINGS). El build usa los mismos.
  */
 
 const LANGS = ["es", "ca", "en"];
 const LABELS = { es: "ES", ca: "CA", en: "EN" };
-const KEY = "qnc.lang";
-
-function stored() {
-  const v = localStorage.getItem(KEY);
-  return LANGS.includes(v) ? v : "es";
-}
-let lang = stored();
+const doc = globalThis.document?.documentElement;
+const lang = LANGS.includes(doc?.lang) ? doc.lang : "es";
 
 // ─── textos fijos de la interfaz ─────────────────────────
 const STRINGS = {
@@ -68,51 +61,20 @@ const STRINGS = {
 };
 
 // ─── API ─────────────────────────────────────────────────
-function t(obj) {
+function t(obj, l = lang) {
   if (obj == null) return "";
   if (Array.isArray(obj)) return obj.join("\n");
-  if (typeof obj === "object") return obj[lang] ?? obj.es ?? Object.values(obj)[0] ?? "";
+  if (typeof obj === "object") return obj[l] ?? obj.es ?? Object.values(obj)[0] ?? "";
   return String(obj);
 }
 
-function s(key) {
+function s(key, l = lang) {
   const o = STRINGS[key];
-  return o ? o[lang] ?? o.es : key;
+  return o ? o[l] ?? o.es : key;
 }
 
-/** Rellena [data-i18n] (textContent) y [data-i18n-ph] (placeholder) de un ámbito. */
-function apply(root) {
-  const scope = root || document;
-  scope.querySelectorAll("[data-i18n]").forEach((el) => {
-    el.textContent = s(el.getAttribute("data-i18n"));
-  });
-  scope.querySelectorAll("[data-i18n-ph]").forEach((el) => {
-    el.setAttribute("placeholder", s(el.getAttribute("data-i18n-ph")));
-  });
-  document.documentElement.lang = lang;
-}
+/** El prefijo de las direcciones en un idioma: "" (es), "/ca", "/en". */
+const pre = (l = lang) => (l === "es" ? "" : `/${l}`);
 
-function set(l) {
-  if (!LANGS.includes(l) || l === lang) return;
-  lang = l;
-  localStorage.setItem(KEY, l);
-  apply();
-  document.dispatchEvent(new CustomEvent("qnc:lang", { detail: { lang } }));
-}
-
-function cycle() {
-  set(LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]);
-}
-
-export const I18N = {
-  get lang() { return lang; },
-  LANGS,
-  LABELS,
-  STRINGS,
-  t,
-  s,
-  set,
-  cycle,
-  apply,
-  label() { return LABELS[lang]; },
-};
+export { STRINGS, LANGS, LABELS };
+export const I18N = { lang, LANGS, LABELS, STRINGS, t, s, pre };

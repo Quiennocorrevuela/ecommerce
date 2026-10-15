@@ -64,6 +64,30 @@ export function clearCart() {
   setCart([]);
 }
 
+/**
+ * La bolsa puede tener semanas y el catálogo haber cambiado. Al abrir el checkout se
+ * compara con el catálogo y el stock vivo, se arregla y se devuelve qué ha cambiado:
+ * [{tipo: "desaparecido" | "agotado" | "menos" | "precio", nombre, quedan, antes, ahora}].
+ * También pone al día lo que guardaban los carritos de antes (la foto con su ruta vieja).
+ */
+export async function revisarCarrito(catalogo, stock) {
+  const avisos = [];
+  const nuevo = [];
+  for (const it of getCart()) {
+    const p = catalogo.find((x) => x.id === it.id);
+    const nombre = Array.isArray(it.titulo) ? it.titulo.join(" ") : it.titulo || it.id;
+    if (!p || p.comingSoon) { avisos.push({ tipo: "desaparecido", nombre }); continue; }
+    const quedan = stock ? Object.values(stock[p.id] || {}).reduce((n, v) => n + Number(v || 0), 0) : Infinity;
+    if (p.soldOut || quedan <= 0) { avisos.push({ tipo: "agotado", nombre }); continue; }
+    let cantidad = Number(it.cantidad);
+    if (cantidad > quedan) { avisos.push({ tipo: "menos", nombre, quedan }); cantidad = quedan; }
+    if (Number(it.precio) !== Number(p.price)) avisos.push({ tipo: "precio", nombre, antes: it.precio, ahora: p.price });
+    nuevo.push({ ...it, cantidad, precio: p.price, peso: p.weight || 0, img: p.photos[0] || "" });
+  }
+  setCart(nuevo);
+  return avisos;
+}
+
 export function renderCartBadge() {
   const n = cartCount();
   document.querySelectorAll("[data-cart-count]").forEach((el) => {

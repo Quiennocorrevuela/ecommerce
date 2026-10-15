@@ -3,17 +3,27 @@ main = "src/index.js"
 compatibility_date = "2025-04-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Static assets: Cloudflare sirve la carpeta public/ (la web) automáticamente.
-# El Worker (main) atiende /api/* y, antes de servirlas, las páginas HTML: les mete las
-# meta de SEO y previews (src/seo.js) y sirve /sitemap.xml. img/css/js/data/fonts no
-# pasan por el Worker: van directos.
+# La web: build/build.mjs la escribe en dist/ (un HTML por página e idioma, con el
+# contenido dentro) y Cloudflare la sirve directa. wrangler lanza el build antes de
+# publicar (y en `wrangler dev`), así que en Workers Builds cada push publica solo.
+[build]
+command = "node build/build.mjs"
+watch_dir = ["build", "data", "products", "authors", "pages", "public"]
+
 [assets]
-directory = "./public"
+directory = "./dist"
 binding = "ASSETS"
-run_worker_first = ["/*", "!/img/*", "!/css/*", "!/js/*", "!/data/*", "!/fonts/*", "!/admin/*"]
+not_found_handling = "404-page"
+# Solo pasan por el Worker la API y las direcciones de antes, para llevarlas a las nuevas.
+run_worker_first = [
+  "/api/*", "/producto", "/autor",
+  "/index.html", "/about.html", "/autores.html", "/autor.html", "/producto.html",
+  "/calendario.html", "/newsletter.html", "/contacto.html", "/legal.html",
+  "/checkout.html", "/gracias.html", "/sorry.html",
+]
 
 # D1 — SQLite serverless. Solo guarda lo mutable (stock, pedidos, newsletter, mensajes).
-# El catálogo vive en public/data/*.json (se edita y se hace push).
+# El catálogo vive en products/<id>/product.json (se edita y se hace push).
 [[d1_databases]]
 binding = "DB"
 database_name = "shop"

@@ -1,88 +1,26 @@
 /**
- * pages/producto.js — ficha de producto (?id=XXX).
- * Izq: visor de imágenes con < >. Der: ficha técnica + añadir al carrito + descripción.
+ * pages/producto.js — ficha de un fanzine.
+ * La ficha llega entera en el HTML (build/paginas.mjs). Aquí: la galería (‹ ›, miniaturas
+ * y ampliar), el botón de añadir según el stock vivo, y el carrito.
  */
 import { mountLayout } from "../core/layout.js";
 import { I18N } from "../core/i18n.js";
-import { fetchProducto, fetchAutores, escapeHtml, formatPrice, estaAgotado } from "../core/data.js";
+import { fetchCatalogo, stockVivo, unidades } from "../core/data.js";
 import { addToCart } from "../core/cart.js";
-import { tituloHTML, toast } from "../core/ui.js";
+import { toast } from "../core/ui.js";
 
 mountLayout();
 
 const root = document.querySelector("[data-producto]");
-// /producto/<id> (y, por si acaso, el ?id= de antes)
-const id = decodeURIComponent(location.pathname.split("/")[2] || "") || new URLSearchParams(location.search).get("id");
 let p = null;
-let conPagina = false; // la autora tiene su página en autores.json
 let idx = 0;
 
-function fichaRows() {
-  const f = p.ficha || {};
-  const rows = [
-    ["ficha.editorial", f.editorial],
-    ["ficha.autor", p.autor],
-    ["ficha.anio", I18N.t(f.anio)],
-    ["ficha.edicion", I18N.t(f.edicion)],
-    ["ficha.encuadernacion", I18N.t(f.encuadernacion)],
-    ["ficha.paginas", f.paginas != null ? String(f.paginas) : ""],
-    ["ficha.medidas", f.medidas],
-  ];
-  return rows
-    .filter(([, v]) => v != null && String(v).trim() !== "")
-    .map(([k, v]) => `<tr><td class="k">${I18N.s(k)}</td><td class="v">${escapeHtml(v)}</td></tr>`)
-    .join("");
-}
-
-function galeriaHTML() {
-  if (!p.imgs.length) {
-    return `<div class="galeria"><div class="galeria-stage"><div class="card-img is-empty">${I18N.s("product.soon")}</div></div></div>`;
-  }
-  const multi = p.imgs.length > 1;
-  return `
-    <div class="galeria">
-      <div class="galeria-stage">
-        ${multi ? `<button class="galeria-nav prev" data-prev aria-label="anterior">‹</button>` : ""}
-        <img data-stage src="${p.imgs[idx]}" alt="${escapeHtml(p.titulo.join(" "))}" />
-        ${multi ? `<button class="galeria-nav next" data-next aria-label="siguiente">›</button>` : ""}
-      </div>
-      ${multi ? `<div class="galeria-thumbs">${p.imgs
-        .map((src, i) => `<button class="${i === idx ? "on" : ""}" data-thumb="${i}" type="button" aria-label="imagen ${i + 1}"><img src="${src}" alt="" loading="lazy"></button>`)
-        .join("")}</div>` : ""}
-    </div>`;
-}
-
-function infoHTML() {
-  const agotado = estaAgotado(p);
-  const proximamente = p.activo === false;
-  let btn;
-  if (proximamente) btn = `<button class="btn-add" disabled>${I18N.s("product.soon")}</button>`;
-  else if (agotado) btn = `<button class="btn-add" disabled>${I18N.s("product.soldout")}</button>`;
-  else btn = `<button class="btn-add" data-add>${I18N.s("product.add")}</button>`;
-
-  return `
-    <div class="producto-info">
-      <table class="ficha"><tbody>${fichaRows()}</tbody></table>
-      ${btn}
-      <h1 class="producto-titulo">${tituloHTML(p.titulo)}</h1>
-      <div class="producto-meta">
-        ${conPagina
-          ? `<a class="autor" href="/autor/${encodeURIComponent(p.autorId)}">${escapeHtml(p.autor)}</a>`
-          : `<span class="autor">${escapeHtml(p.autor)}</span>`}
-        <span class="precio">${formatPrice(p.precio)}</span>
-      </div>
-      <div class="producto-desc">${escapeHtml(I18N.t(p.descripcion))}</div>
-    </div>`;
-}
-
-function render() {
-  root.innerHTML = galeriaHTML() + infoHTML();
-  document.title = `${p.titulo.join(" ")} · Quien no corre, vuela`;
-
+function galeria() {
   const stage = root.querySelector("[data-stage]");
+  if (!stage) return;
   const go = (n) => {
-    idx = (n + p.imgs.length) % p.imgs.length;
-    stage.src = p.imgs[idx];
+    idx = (n + p.photos.length) % p.photos.length;
+    stage.src = p.photos[idx];
     const activa = root.querySelectorAll("[data-thumb]");
     activa.forEach((t, i) => t.classList.toggle("on", i === idx));
     activa[idx]?.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -92,12 +30,23 @@ function render() {
   root.querySelectorAll("[data-thumb]").forEach((t) =>
     t.addEventListener("click", () => go(Number(t.dataset.thumb)))
   );
-
   // Clic en la imagen → ampliar a pantalla completa (lightbox).
-  stage?.addEventListener("click", () => openLightbox(idx));
+  stage.addEventListener("click", () => openLightbox(idx));
+}
 
-  root.querySelector("[data-add]")?.addEventListener("click", () => {
-    addToCart({ id: p.id, titulo: p.titulo, autor: p.autor, precio: p.precio, peso: p.peso || 0, img: p.imgs[0] || "" });
+/** El botón llega como "añadir"; sin unidades en el stock vivo pasa a "agotado". */
+async function boton() {
+  const btn = root.querySelector("[data-add]");
+  if (!btn) return; // próximamente, o agotado a mano en el JSON
+  const stock = await stockVivo();
+  if (stock && unidades(stock, p.id) <= 0) {
+    btn.disabled = true;
+    btn.removeAttribute("data-add");
+    btn.textContent = I18N.s("product.soldout");
+    return;
+  }
+  btn.addEventListener("click", () => {
+    addToCart({ id: p.id, titulo: [].concat(p.title), autor: p.author, precio: p.price, peso: p.weight || 0, img: p.photos[0] || "" });
     toast(I18N.s("product.added"));
   });
 }
@@ -106,9 +55,9 @@ function render() {
 let lbIdx = 0;
 function lbSync() {
   const img = document.querySelector(".qnc-lightbox .lb-img");
-  if (img) img.src = p.imgs[lbIdx];
+  if (img) img.src = p.photos[lbIdx];
 }
-function lbGo(d) { lbIdx = (lbIdx + d + p.imgs.length) % p.imgs.length; lbSync(); }
+function lbGo(d) { lbIdx = (lbIdx + d + p.photos.length) % p.photos.length; lbSync(); }
 function closeLightbox() { document.querySelector(".qnc-lightbox")?.classList.remove("show"); }
 function lbKey(e) {
   const ov = document.querySelector(".qnc-lightbox");
@@ -118,7 +67,7 @@ function lbKey(e) {
   else if (e.key === "ArrowRight") lbGo(1);
 }
 function openLightbox(startIdx) {
-  if (!p?.imgs?.length) return;
+  if (!p?.photos?.length) return;
   lbIdx = startIdx;
   let ov = document.querySelector(".qnc-lightbox");
   if (!ov) {
@@ -137,26 +86,17 @@ function openLightbox(startIdx) {
     ov.querySelector(".lb-nav.next").addEventListener("click", (e) => { e.stopPropagation(); lbGo(1); });
     document.addEventListener("keydown", lbKey);
   }
-  ov.querySelectorAll(".lb-nav").forEach((b) => (b.hidden = p.imgs.length < 2));
+  ov.querySelectorAll(".lb-nav").forEach((b) => (b.hidden = p.photos.length < 2));
   lbSync();
   ov.classList.add("show");
 }
 
 async function init() {
   if (!root) return;
-  if (!id) { root.innerHTML = `<p class="estado">${I18N.s("error.generic")}</p>`; return; }
-  try {
-    const [prod, autores] = await Promise.all([fetchProducto(id), fetchAutores().catch(() => [])]);
-    p = prod;
-    conPagina = !!p && autores.some((a) => a.id === p.autorId);
-  } catch (err) {
-    console.error(err);
-    root.innerHTML = `<p class="estado">${I18N.s("error.load")}</p>`;
-    return;
-  }
-  if (!p) { root.innerHTML = `<p class="estado">404</p>`; return; }
-  render();
-  document.addEventListener("qnc:lang", render);
+  p = (await fetchCatalogo().catch(() => [])).find((x) => x.id === root.dataset.id);
+  if (!p) return;
+  galeria();
+  boton();
 }
 
 init();

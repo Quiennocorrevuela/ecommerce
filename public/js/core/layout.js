@@ -1,78 +1,10 @@
 /**
  * core/layout.js — cabecera y menú compartidos.
  *
- * mountLayout() inyecta al principio del <body>:
- *   - Cabecera: [menú] (izq, esquina)  ·  logo (centro)  ·  carrito (derecha)
- *   - Menú lateral (drawer): navegación + selector de idioma al pie.
- * Aplica i18n, conecta los eventos y pinta el badge del carrito. Llamar una vez por página.
+ * La cabecera y el menú ya vienen en el HTML (build/paginas.mjs). Aquí solo se abre y
+ * se cierra el menú y se pinta el número del carrito. Llamar una vez por página.
  */
-import { CONFIG } from "./config.js";
-import { I18N } from "./i18n.js";
 import { renderCartBadge } from "./cart.js";
-
-const NAV = [
-  { href: "/", key: "nav.tienda" },
-  { href: "/about", key: "nav.nosotras" },
-  { href: "/calendario", key: "nav.calendario" },
-  { href: "/newsletter", key: "nav.newsletter" },
-  { href: "/contacto", key: "nav.contacto" },
-  { href: "/autores", key: "nav.autoras" },
-  { href: "/legal", key: "nav.legal" },
-];
-
-function build() {
-  const wrap = document.createElement("div");
-  wrap.innerHTML = `
-    <header class="qnc-header">
-      <button class="btn-menu" data-menu-open type="button"><span data-i18n="menu">menú</span></button>
-      <a class="hdr-logo" href="/" aria-label="${CONFIG.TIENDA_NOMBRE}">
-        <img src="/img/logo.webp" alt="${CONFIG.TIENDA_NOMBRE}" />
-      </a>
-      <a class="hdr-cart" href="/checkout" aria-label="carrito">
-        <img src="/img/iconos/carro.webp" alt="" />
-        <span class="cart-badge" data-cart-count></span>
-      </a>
-    </header>
-
-    <nav class="qnc-menu" data-menu aria-hidden="true">
-      <button class="menu-close" data-menu-close type="button" aria-label="cerrar">×</button>
-      <ul>
-        ${NAV.map((n) => `<li><a href="${n.href}" data-i18n="${n.key}"></a></li>`).join("")}
-      </ul>
-      <div class="menu-langs" data-langs>
-        ${I18N.LANGS.map((l) => `<button type="button" data-lang="${l}" class="${l === I18N.lang ? "on" : ""}">${I18N.LABELS[l]}</button>`).join("")}
-      </div>
-    </nav>
-    <div class="menu-overlay" data-menu-overlay></div>
-  `;
-  // "/about.html", "/about/" y "/about" son la misma página
-  const here = location.pathname.replace(/(\/index)?\.html$/, "").replace(/(.)\/$/, "$1") || "/";
-  wrap.querySelectorAll(".qnc-menu a").forEach((a) => {
-    if (a.getAttribute("href") === here) a.classList.add("is-active");
-  });
-  Array.from(wrap.children).reverse().forEach((el) => document.body.prepend(el));
-
-  // Firma del estudio al pie. Solo en "nosotras": es un crédito, no una marca
-  // que tenga que ir debajo de cada fanzine.
-  if (here === "/about" && !document.querySelector(".qnc-footer")) {
-    const footer = document.createElement("footer");
-    footer.className = "qnc-footer";
-    footer.innerHTML = `ecommerce: <a href="https://meowrhino.studio" target="_blank" rel="noopener noreferrer">meowrhino.studio</a>`;
-    document.body.appendChild(footer);
-  }
-}
-
-/** Cambia de idioma con un fundido suave del contenido. */
-function setLangFade(l) {
-  if (l === I18N.lang) return;
-  const main = document.querySelector("main");
-  if (!main) return I18N.set(l);
-  main.classList.add("lang-fade");
-  setTimeout(() => {
-    I18N.set(l);
-    main.classList.remove("lang-fade");
-  }, 220);
-}
 
 function wire() {
   const menu = document.querySelector("[data-menu]");
@@ -84,20 +16,9 @@ function wire() {
   document.querySelector("[data-menu-close]")?.addEventListener("click", close);
   overlay?.addEventListener("click", close);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
-
-  document.querySelectorAll("[data-langs] [data-lang]").forEach((b) =>
-    b.addEventListener("click", () => setLangFade(b.dataset.lang))
-  );
-  document.addEventListener("qnc:lang", () => {
-    document.querySelectorAll("[data-langs] [data-lang]").forEach((b) =>
-      b.classList.toggle("on", b.dataset.lang === I18N.lang)
-    );
-  });
 }
 
 export function mountLayout() {
-  build();
-  I18N.apply();
   wire();
   renderCartBadge();
 }

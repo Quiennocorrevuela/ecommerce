@@ -1,0 +1,25 @@
+{
+  "title": "Black cover",
+  "author": "Andrea Carilla",
+  "authorId": "andrea-carilla",
+  "price": 6.0,
+  "weight": 30,
+  "details": {
+    "publisher": "quien no corre, vuela",
+    "binding": {"es": "grapa", "ca": "grapa", "en": "staple-bound"},
+    "pages": 10,
+    "size": "71 × 106 mm",
+    "year": {"es": "abril 2025", "ca": "abril 2025", "en": "April 2025"},
+    "edition": {
+      "es": "1ª edición · 20 copias",
+      "ca": "1a edició · 20 còpies",
+      "en": "1st edition · 20 copies"
+    }
+  },
+  "text": {
+    "es": ["Fotografías hechas durante la Semana Santa de Granada, 2025."],
+    "ca": ["Fotografies fetes durant la Setmana Santa de Granada, 2025."],
+    "en": ["Photographs taken during Holy Week in Granada, 2025."]
+  },
+  "photos": ["1", "2", "3", "4", "5"]
+}

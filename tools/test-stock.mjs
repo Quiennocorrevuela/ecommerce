@@ -74,5 +74,21 @@ await webhook();
 comprobar("webhook repetido: el stock no vuelve a bajar", (await stock()) === 3);
 comprobar("ni se apunta otra venta", (await ventas()) === ventasAntes + 1);
 
+console.log("sobreventa");
+await mover([{ id: ID, stockByTalla: { _: 1 } }]);
+const otro = cuerpo.replace(/cs_test_\d+/, `cs_test_${Date.now()}b`);
+const firma2 = () => {
+  const t = Math.floor(Date.now() / 1000);
+  return `t=${t},v1=${createHmac("sha256", "whsec_pruebas").update(`${t}.${otro}`).digest("hex")}`;
+};
+await fetch(`${BASE}/stripe-webhook`, { method: "POST", headers: { "stripe-signature": firma2() }, body: otro });
+const sesion = JSON.parse(otro).data.object.id;
+const pedido = (await (await fetch(`${BASE}/admin/historial?limit=20`, { headers: AUTH })).json())
+  .find((p) => p.stripe_session_id === sesion);
+comprobar("pedir 2 cuando queda 1: el pedido nace como «revisar»", pedido?.estado === "revisar", pedido);
+comprobar("y el stock se queda en 0, no en negativo", (await stock()) === 0);
+reg = await registro();
+comprobar("el registro apunta lo que había de verdad", reg[0].cambio === -1 && /quedaban 1/.test(reg[0].nota), reg[0]);
+
 console.log(ko ? `\n✗ ${ko} fallo(s) de ${ok + ko}` : `\n✓ ${ok} comprobaciones, 0 fallos`);
 process.exit(ko ? 1 : 0);

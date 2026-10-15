@@ -6,29 +6,29 @@
  */
 
 /**
- * Precio de envío de una zona. Soporta dos formatos en envios.json:
- *   - tarifa plana:  { "precio": 4.90 }
- *   - por peso:      { "tramos": [ { "hasta": <gramos>, "precio": <€> }, ... ] }
+ * Precio de envío de una zona. Dos formatos en data/shipping.json:
+ *   - tarifa plana:  { "price": 4.90 }
+ *   - por peso:      { "rates": [ { "upTo": <gramos>, "price": <€> }, ... ] }
  * El precio se calcula SIEMPRE aquí (servidor y front usan esta misma función);
  * nunca se acepta del cliente.
  */
 export function precioEnvio(zona, gramos = 0) {
   if (!zona) return 0;
-  if (Array.isArray(zona.tramos)) {
-    const tramos = [...zona.tramos].sort((a, b) => a.hasta - b.hasta);
-    for (const tr of tramos) if (gramos <= tr.hasta) return Number(tr.precio) || 0;
-    return Number(tramos[tramos.length - 1]?.precio) || 0;
+  if (Array.isArray(zona.rates)) {
+    const tramos = [...zona.rates].sort((a, b) => a.upTo - b.upTo);
+    for (const tr of tramos) if (gramos <= tr.upTo) return Number(tr.price) || 0;
+    return Number(tramos[tramos.length - 1]?.price) || 0;
   }
-  return Number(zona.precio) || 0;
+  return Number(zona.price) || 0;
 }
 
-/** Etiqueta de una zona para el checkout (nombre string, objeto i18n {es,…}, o el id). */
+/** Etiqueta de una zona para el checkout (name string, objeto {es,…}, o el id). */
 export function nombreDeZona(zona) {
-  if (typeof zona?.nombre === "string") return zona.nombre;
-  return zona?.nombre?.es || zona?.zona || "";
+  if (typeof zona?.name === "string") return zona.name;
+  return zona?.name?.es || zona?.zone || "";
 }
 
-/** Zona de recogida en mano: flag "recogida": true o zona llamada "recogida" (no pide dirección). */
+/** Zona de recogida en mano: "pickup": true o zona llamada "recogida" (no pide dirección). */
 export function esZonaRecogida(zona) {
-  return zona?.recogida === true || zona?.zona === "recogida";
+  return zona?.pickup === true || zona?.zone === "recogida";
 }

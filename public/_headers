@@ -1,6 +1,12 @@
-# Caché del navegador. El HTML, css, js y data/ se quedan como vienen (se revalidan
+# Caché del navegador. El HTML, css, js y los JSON de data/ se quedan como vienen (se revalidan
 # en cada visita), para que un cambio se vea al momento y el js nunca vaya desparejado.
 /img/*
   Cache-Control: public, max-age=86400
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+/products/*
+  Cache-Control: public, max-age=86400
+/authors/*
+  Cache-Control: public, max-age=86400
+/data/events/*
+  Cache-Control: public, max-age=86400

@@ -1,0 +1,34 @@
+{
+  "title": "La mort i la primavera",
+  "author": "Sofia Milena",
+  "authorId": "sofia-milena",
+  "price": 25.0,
+  "weight": 180,
+  "details": {
+    "publisher": "quien no corre, vuela",
+    "binding": {"es": "cosido", "ca": "cosit", "en": "sewn-bound"},
+    "pages": 68,
+    "size": "148 × 210 mm",
+    "year": {"es": "junio 2026", "ca": "juny 2026", "en": "June 2026"},
+    "edition": {
+      "es": "1ª edición · 50 copias",
+      "ca": "1a edició · 50 còpies",
+      "en": "1st edition · 50 copies"
+    }
+  },
+  "text": {
+    "es": [
+      "La publicación “La mort i la primavera; Diarios de Laboratorio II: Positivado a color” recoge las imágenes elaboradas durante el proceso de aprendizaje del positivado a color. En este diario se reúnen vivencias y sucesos de forma íntima y vulnerable: el amor, la pérdida de seres queridos, la amistad, el desamor y el inevitable paso del tiempo.",
+      "El título aparece como una premonición, un futuro que está preparado para ser cumplido."
+    ],
+    "ca": [
+      "La publicació “La mort i la primavera; Diaris de Laboratori II: Positivat en color” recull les imatges elaborades durant el procés d’aprenentatge del positivat en color. En aquest diari s’hi reuneixen vivències i esdeveniments de manera íntima i vulnerable: l’amor, la pèrdua d’éssers estimats, l’amistat, el desamor i l’inevitable pas del temps.",
+      "El títol apareix com una premonició, un futur que està preparat per ser complert."
+    ],
+    "en": [
+      "“La mort i la primavera; Laboratory Diaries II: Color Printing” brings together the images created during the process of learning color photographic printing. This diary gathers experiences and events in an intimate and vulnerable way: love, the loss of loved ones, friendship, heartbreak, and the inevitable passage of time.",
+      "The title appears as a premonition, a future already poised to be fulfilled."
+    ]
+  },
+  "photos": ["1", "2", "3", "4", "5", "6", "7", "8"]
+}

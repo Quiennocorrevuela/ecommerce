@@ -1,0 +1,34 @@
+{
+  "title": "Archivo en Pixel",
+  "author": "Andrea Carilla",
+  "authorId": "andrea-carilla",
+  "price": 15.0,
+  "weight": 80,
+  "details": {
+    "publisher": "quien no corre, vuela",
+    "binding": {"es": "pinzado", "ca": "pinçat", "en": "clip-bound"},
+    "pages": 32,
+    "size": "140,3 × 185 mm",
+    "year": {"es": "febrero 2025", "ca": "febrer 2025", "en": "February 2025"},
+    "edition": {
+      "es": "1ª edición · 50 copias",
+      "ca": "1a edició · 50 còpies",
+      "en": "1st edition · 50 copies"
+    }
+  },
+  "text": {
+    "es": [
+      "“Archivo en Pixel” es un fanzine que recopila el rastro fotográfico almacenado en el móvil de Andrea durante 2019. Imágenes capturadas, enviadas, reenviadas, recortadas, ampliadas y descargadas, la única copia que conserva, todas en baja resolución. A partir de este archivo digital efímero, la autora da forma a una narrativa visual que reconstruye sus vivencias de aquel año, en un proceso de autoconocimiento y revalorización de la imagen pobre. Un gesto que otorga validez a lo pixelado, reivindicándolo como parte del lenguaje fotográfico.",
+      "Una memoria difusa, como estas imágenes: fragmentadas y borrosas."
+    ],
+    "ca": [
+      "“Archivo en Pixel” és un fanzine que recopila el rastre fotogràfic emmagatzemat al mòbil de l’Andrea durant l’any 2019. Imatges capturades, enviades, reenviades, retallades, ampliades i descarregades, l’única còpia que conserva, totes en baixa resolució. A partir d’aquest arxiu digital efímer, l’autora dona forma a una narrativa visual que reconstrueix les seves vivències d’aquell any, en un procés d’autoconeixement i revalorització de la imatge pobra. Un gest que atorga validesa al pixelat, reivindicant-lo com a part del llenguatge fotogràfic.",
+      "Una memòria difusa, com aquestes imatges: fragmentades i borroses."
+    ],
+    "en": [
+      "“Archivo en Pixel” is a fanzine that gathers the photographic traces stored on Andrea’s phone throughout 2019. Images captured, sent, forwarded, cropped, enlarged, and downloaded — the only copies she still keeps, all in low resolution. From this ephemeral digital archive, the author shapes a visual narrative that reconstructs her experiences of that year through a process of self-discovery and a revaluation of the poor image. A gesture that grants validity to the pixelated, reclaiming it as part of the photographic language.",
+      "A blurred memory, like these images: fragmented and out of focus."
+    ]
+  },
+  "photos": ["1", "2", "3", "4", "5", "6", "7"]
+}

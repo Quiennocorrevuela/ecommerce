@@ -177,18 +177,16 @@ button { font: inherit; color: inherit; }
   display: flex;
   gap: 0.9rem;
 }
-.menu-langs button {
-  border: 0;
-  background: none;
-  cursor: pointer;
+/* Cada idioma es su propia dirección (/, /ca/, /en/): son enlaces, no botones. */
+.menu-langs a {
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 1.15rem;
   color: var(--muted);
-  padding: 0;
+  letter-spacing: 0;
 }
-.menu-langs button.on { color: var(--fg); }
-.menu-langs button:hover { color: var(--fg); }
+.menu-langs a.on { color: var(--fg); }
+.menu-langs a:hover { color: var(--fg); }
 .menu-close {
   position: absolute;
   top: 1rem;
@@ -219,7 +217,6 @@ main {
   transition: opacity 0.22s ease;
 }
 /* Fundido suave al cambiar de idioma (se conmuta desde layout.js). */
-main.lang-fade { opacity: 0; }
 
 .estado { padding: 3rem 0; color: var(--muted); font-style: italic; }
 
@@ -883,3 +880,9 @@ main.lang-fade { opacity: 0; }
   transition: color 0.2s ease;
 }
 .qnc-footer a:hover { color: var(--fg); }
+
+/* Checkout: la bolsa ha cambiado desde que se llenó (js/core/cart.js → revisarCarrito) */
+.avisos-carrito { border: 1px solid var(--line); padding: 1rem; margin-bottom: 1.5rem; font-size: 0.9em; }
+.avisos-carrito p { margin: 0 0 0.5rem; }
+.avisos-carrito ul { margin: 0; padding-left: 1.1rem; }
+.avisos-carrito li { margin-bottom: 0.3rem; }

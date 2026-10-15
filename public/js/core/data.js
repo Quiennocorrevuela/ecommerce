@@ -1,16 +1,16 @@
 /**
- * core/data.js — capa de datos (catálogo, autoras, eventos, envíos) + utilidades.
+ * core/data.js — utilidades y lo poco que la página pide en vivo.
  *
- * Estrategia JAMstack: el catálogo se lee de los JSON estáticos del repo, así la web se
- * previsualiza sin backend. El stock vivo se pide a /api/stock; si no está disponible
- * (o el fanzine aún no tiene unidades en /admin/stock), sale agotado.
+ * Las páginas ya llegan con el contenido dentro (lo escribe build/build.mjs): aquí solo
+ * queda lo que cambia sin publicar, el stock (/api/stock), y el catálogo en JSON
+ * (/data/products.json, también del build) para el carrito.
  *
- * Modelo de producto (data/productos.json):
- *   { id, titulo:[líneas], autor, autorId, precio, peso(g), imgs:[...], ficha:{...},
- *     descripcion:{es,ca,en}, activo }
+ * Este fichero lo importa también el build (escapeHtml, formatPrice): nada de DOM fuera
+ * de las funciones.
  */
 import { CONFIG } from "./config.js";
 import { precioEnvio } from "./shared.js";
+import { I18N } from "./i18n.js";
 
 // Re-exportada desde el módulo compartido para no romper quien la importa de aquí (p. ej. checkout.js).
 export { precioEnvio };
@@ -33,70 +33,43 @@ export function formatPrice(eur) {
   }).format(Number(eur) || 0);
 }
 
-export function stockTotal(p) {
-  return Object.values(p.stockByTalla || {}).reduce((n, v) => n + Number(v || 0), 0);
-}
-
-/**
- * Un producto está agotado si está activo pero marcado `agotado` o sin stock vivo.
- * Los "próximamente" (activo:false) no cuentan como agotados. Criterio único del front;
- * el servidor recalcula por su cuenta al crear la sesión de pago.
- */
-export function estaAgotado(p) {
-  return p.activo !== false && (p.agotado === true || stockTotal(p) <= 0);
-}
-
-// ─── catálogo ────────────────────────────────────────────
+// ─── catálogo y stock ────────────────────────────────────
 async function getJSON(path) {
   const res = await fetch(path, { cache: "no-cache" });
   if (!res.ok) throw new Error(`${path} no disponible (HTTP ${res.status})`);
   return res.json();
 }
 
-/** Intenta enriquecer con el stock vivo de la API; si no hay backend, devuelve null. */
-async function stockVivo() {
-  try {
-    const res = await fetch(`${CONFIG.API_BASE}/stock`);
-    if (res.ok) return await res.json();
-  } catch {
-    /* preview estático sin backend */
-  }
-  return null;
+/** El catálogo que escribe el build: [{id, title, author, price, weight, photos, soldOut, comingSoon}]. */
+let catalogoP = null;
+export const fetchCatalogo = () => (catalogoP ||= getJSON("/data/products.json"));
+export const fetchEnvios = () => getJSON("/data/shipping.json");
+
+/** El stock vivo {id: {talla: n}}, o null si no hay backend (vista previa sin Worker). */
+let stockP = null;
+export function stockVivo() {
+  return (stockP ||= fetch(`${CONFIG.API_BASE}/stock`)
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null));
 }
 
-/** Normaliza un producto crudo del JSON y le inyecta el stock disponible. */
-function hydrate(raw, stock) {
-  return {
-    ...raw,
-    titulo: Array.isArray(raw.titulo) ? raw.titulo : [raw.titulo],
-    imgs: Array.isArray(raw.imgs) ? raw.imgs : raw.img ? [raw.img] : [],
-    stockByTalla: (stock && stock[raw.id]) || {},
-  };
-}
-
-export async function fetchProductos() {
-  const [catalogo, stock] = await Promise.all([getJSON("data/productos.json"), stockVivo()]);
-  return catalogo.filter((p) => p.activo !== false).map((p) => hydrate(p, stock));
-}
-
-/** Un producto por id (incluye inactivos, para mostrar "próximamente"). */
-export async function fetchProducto(id) {
-  const [catalogo, stock] = await Promise.all([getJSON("data/productos.json"), stockVivo()]);
-  const raw = catalogo.find((p) => String(p.id) === String(id));
-  return raw ? hydrate(raw, stock) : null;
-}
-
-export const fetchEnvios = () => getJSON("data/envios.json");
-export const fetchAutores = () => getJSON("data/autores.json");
-export const fetchEventos = () => getJSON("data/eventos.json");
+export const unidades = (stock, id) =>
+  Object.values(stock?.[id] || {}).reduce((n, v) => n + Number(v || 0), 0);
 
 /**
- * Catálogo entero con el stock ya inyectado y SIN filtrar por `activo`.
- * La ficha de autora lo usa porque enseña también sus "próximamente"; si se
- * leyera el JSON crudo, `stockByTalla` vendría vacío y estaAgotado() marcaría
- * agotado todo lo que hay a la venta.
+ * Las fichas (tarjetas de la tienda y de una autora) llegan dibujadas como disponibles;
+ * con el stock vivo, las que no tienen unidades pasan a "agotado". Las marcadas a mano
+ * (soldOut en el JSON) ya vienen agotadas del build, y las de "próximamente" no se tocan.
+ * Sin backend no se cambia nada: el servidor vuelve a mirar el stock al pagar.
  */
-export async function fetchCatalogoCompleto() {
-  const [catalogo, stock] = await Promise.all([getJSON("data/productos.json"), stockVivo()]);
-  return catalogo.map((p) => hydrate(p, stock));
+export async function marcarAgotados(root = document) {
+  const stock = await stockVivo();
+  if (!stock) return;
+  const soldout = `<span class="soldout"><span class="dot" aria-hidden="true"></span><span class="txt">${I18N.s("product.soldout")}</span></span>`;
+  root.querySelectorAll("a.card[data-id]:not([data-soon])").forEach((card) => {
+    if (unidades(stock, card.dataset.id) > 0 || card.classList.contains("is-agotado")) return;
+    card.classList.add("is-agotado");
+    const precio = card.querySelector(".precio");
+    if (precio) precio.innerHTML = soldout;
+  });
 }

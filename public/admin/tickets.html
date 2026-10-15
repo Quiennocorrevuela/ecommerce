@@ -20,7 +20,8 @@
 
     <script>
       const token = localStorage.getItem("qnc.admin") || "";
-      const ESTADOS = ["pendiente", "enviado", "entregado", "cancelado"];
+      // "revisar": lo pone la web sola cuando se ha vendido algo que ya no quedaba.
+      const ESTADOS = ["pendiente", "revisar", "enviado", "entregado", "cancelado"];
       // Escapa datos del comprador (nombre/dirección de Stripe) antes de meterlos en innerHTML.
       const esc = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 

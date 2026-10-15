@@ -1,10 +1,10 @@
 -- schema.sql — esquema D1.
--- El catálogo vive en data/productos.json; aquí solo guardamos lo mutable:
+-- El catálogo vive en products/<id>/product.json; aquí solo guardamos lo mutable:
 --   • stock      → cantidades por (producto, talla), que bajan con cada venta
 --   • stock_mov  → el registro: una línea cada vez que cambia el stock
 --   • pedidos    → historial de compras
 --
--- Aplica con:  wrangler d1 execute shop --file=./data/schema.sql
+-- Aplica con:  npm run db:init
 -- (local)      npm run db:init:local
 --
 -- Es idempotente (IF NOT EXISTS), así que puedes relanzarlo sin perder datos.
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
   amount_total       INTEGER,       -- céntimos
   currency           TEXT,
   items              TEXT NOT NULL, -- JSON: [{id, nombre, precio, talla, cantidad}]
-  zona               TEXT,          -- zona de envío elegida (envios.json)
+  zona               TEXT,          -- zona de envío elegida (data/shipping.json)
   envio              TEXT,          -- JSON: {zona, nombre, direccion, telefono} (de Stripe)
   estado             TEXT NOT NULL DEFAULT 'pendiente', -- pendiente | enviado | entregado | cancelado
   created_at         TEXT NOT NULL DEFAULT (datetime('now'))

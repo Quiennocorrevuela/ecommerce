@@ -24,3 +24,5 @@ node_modules/
 # Material fuente (no se sirve; se conserva local pero fuera del repo)
 WEB_MANU/
 referencias/
+# la web generada (build/build.mjs): no se commitea
+dist/

@@ -1,31 +1,8 @@
 /**
- * pages/home.js — galería de la tienda.
+ * pages/home.js — la tienda. Las tarjetas vienen en el HTML; aquí se marcan las agotadas.
  */
 import { mountLayout } from "../core/layout.js";
-import { I18N } from "../core/i18n.js";
-import { fetchProductos } from "../core/data.js";
-import { productoCardHTML } from "../core/ui.js";
+import { marcarAgotados } from "../core/data.js";
 
 mountLayout();
-
-const container = document.querySelector("[data-productos]");
-let productos = [];
-
-function render() {
-  if (!container) return;
-  container.innerHTML = productos.length
-    ? productos.map(productoCardHTML).join("")
-    : `<p class="estado">${I18N.s("error.load")}</p>`;
-}
-
-async function init() {
-  try {
-    productos = await fetchProductos();
-  } catch (err) {
-    console.error("home", err);
-  }
-  render();
-}
-
-init();
-document.addEventListener("qnc:lang", render);
+marcarAgotados();

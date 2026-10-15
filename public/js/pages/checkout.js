@@ -5,8 +5,8 @@
 import { mountLayout } from "../core/layout.js";
 import { I18N } from "../core/i18n.js";
 import { CONFIG } from "../core/config.js";
-import { fetchEnvios, escapeHtml, formatPrice, precioEnvio } from "../core/data.js";
-import { getCart, cartTotal, cartWeight, setQty, removeItem } from "../core/cart.js";
+import { fetchEnvios, fetchCatalogo, stockVivo, escapeHtml, formatPrice, precioEnvio } from "../core/data.js";
+import { getCart, cartTotal, cartWeight, setQty, removeItem, revisarCarrito } from "../core/cart.js";
 
 mountLayout();
 
@@ -17,7 +17,8 @@ let envios = [];
 let zonaSel = null;
 
 const tituloTxt = (it) => (Array.isArray(it.titulo) ? it.titulo.join(" ") : it.titulo || it.nombre || "");
-const zonaActual = () => envios.find((z) => z.zona === zonaSel) || envios[0] || null;
+const zonaActual = () => envios.find((z) => z.zone === zonaSel) || envios[0] || null;
+const tienda = `${I18N.pre()}/`;
 
 function render() {
   if (!listEl) return;
@@ -25,7 +26,7 @@ function render() {
 
   if (!cart.length) {
     listEl.innerHTML = `<p class="estado">${I18N.s("cart.empty")}</p>`;
-    resumenEl.innerHTML = `<p><a href="/">← ${I18N.s("cart.continue")}</a></p>`;
+    resumenEl.innerHTML = `<p><a href="${tienda}">← ${I18N.s("cart.continue")}</a></p>`;
     return;
   }
 
@@ -59,7 +60,7 @@ function render() {
     <div class="fila">
       <label>${I18N.s("cart.zone")}:
         <select data-zona>
-          ${envios.map((z) => `<option value="${z.zona}" ${z.zona === zonaSel ? "selected" : ""}>${escapeHtml(I18N.t(z.nombre))}</option>`).join("")}
+          ${envios.map((z) => `<option value="${z.zone}" ${z.zone === zonaSel ? "selected" : ""}>${escapeHtml(I18N.t(z.name))}</option>`).join("")}
         </select>
       </label>
     </div>
@@ -68,7 +69,7 @@ function render() {
     <div class="fila"><span>${I18N.s("cart.shipping")}</span><span>${formatPrice(envio)}</span></div>
     <div class="fila total"><span>${I18N.s("cart.total")}</span><span>${formatPrice(total)}</span></div>
     <button class="btn-pagar" data-pagar>${I18N.s("cart.pay")}</button>
-    <p style="margin-top:1rem"><a href="/">← ${I18N.s("cart.continue")}</a></p>`;
+    <p style="margin-top:1rem"><a href="${tienda}">← ${I18N.s("cart.continue")}</a></p>`;
 
   resumenEl.querySelector("[data-zona]").addEventListener("change", (e) => { zonaSel = e.target.value; render(); });
   resumenEl.querySelector("[data-pagar]").addEventListener("click", pagar);
@@ -93,10 +94,33 @@ async function pagar(e) {
   }
 }
 
+/** Los avisos de revisarCarrito(), en frases para quien compra. */
+function frase(a) {
+  if (a.tipo === "desaparecido") return `${a.nombre} ya no está a la venta y se ha quitado de la bolsa.`;
+  if (a.tipo === "agotado") return `${a.nombre} se ha agotado y se ha quitado de la bolsa.`;
+  if (a.tipo === "menos") return `De ${a.nombre} solo queda${a.quedan === 1 ? "" : "n"} ${a.quedan}: hemos ajustado la cantidad.`;
+  if (a.tipo === "precio") return `El precio de ${a.nombre} ha cambiado de ${formatPrice(a.antes)} a ${formatPrice(a.ahora)}.`;
+  return "";
+}
+
+async function avisosDelCarrito() {
+  const [catalogo, stock] = await Promise.all([fetchCatalogo().catch(() => null), stockVivo()]);
+  if (!catalogo) return;
+  const avisos = await revisarCarrito(catalogo, stock);
+  if (!avisos.length) return;
+  const caja = document.createElement("div");
+  caja.className = "avisos-carrito";
+  caja.setAttribute("role", "status");
+  caja.innerHTML = `<p><b>La bolsa ha cambiado</b></p><ul>${avisos.map((a) => `<li>${escapeHtml(frase(a))}</li>`).join("")}</ul>`;
+  document.querySelector("main")?.prepend(caja);
+}
+
 async function init() {
+  // Antes de enseñar nada: la bolsa puede tener semanas y el catálogo haber cambiado.
+  await avisosDelCarrito();
   try {
     envios = await fetchEnvios();
-    zonaSel = (envios.find((z) => z.zona !== "recogida") || envios[0])?.zona || null;
+    zonaSel = (envios.find((z) => z.zone !== "recogida") || envios[0])?.zone || null;
   } catch (err) {
     console.warn("envios:", err);
   }
@@ -104,4 +128,3 @@ async function init() {
 }
 
 init();
-document.addEventListener("qnc:lang", render);

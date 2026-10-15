@@ -1,0 +1,91 @@
+[
+  {
+    "zone": "recogida",
+    "name": {"es": "Recogida en mano", "ca": "Recollida en mà", "en": "Local pickup"},
+    "rates": [
+      {"upTo": 100000, "price": 0}
+    ]
+  },
+  {
+    "zone": "peninsula",
+    "name": {"es": "España peninsular", "ca": "Espanya peninsular", "en": "Mainland Spain"},
+    "countries": ["ES"],
+    "rates": [
+      {"upTo": 500, "price": 3.5},
+      {"upTo": 1000, "price": 4.9},
+      {"upTo": 2000, "price": 6.5},
+      {"upTo": 100000, "price": 9.0}
+    ]
+  },
+  {
+    "zone": "baleares-canarias",
+    "name": {"es": "Baleares y Canarias", "ca": "Balears i Canàries", "en": "Balearic & Canary Islands"},
+    "countries": ["ES"],
+    "rates": [
+      {"upTo": 500, "price": 5.5},
+      {"upTo": 1000, "price": 7.5},
+      {"upTo": 2000, "price": 10.0},
+      {"upTo": 100000, "price": 14.0}
+    ]
+  },
+  {
+    "zone": "europa",
+    "name": {"es": "Europa", "ca": "Europa", "en": "Europe"},
+    "countries": [
+      "AD",
+      "AT",
+      "BE",
+      "BG",
+      "CH",
+      "CY",
+      "CZ",
+      "DE",
+      "DK",
+      "EE",
+      "FI",
+      "FR",
+      "GB",
+      "GR",
+      "HR",
+      "HU",
+      "IE",
+      "IS",
+      "IT",
+      "LI",
+      "LT",
+      "LU",
+      "LV",
+      "MC",
+      "ME",
+      "MK",
+      "MT",
+      "NL",
+      "NO",
+      "PL",
+      "PT",
+      "RO",
+      "RS",
+      "SE",
+      "SI",
+      "SK",
+      "SM",
+      "VA"
+    ],
+    "rates": [
+      {"upTo": 500, "price": 8.0},
+      {"upTo": 1000, "price": 11.0},
+      {"upTo": 2000, "price": 15.0},
+      {"upTo": 100000, "price": 22.0}
+    ]
+  },
+  {
+    "zone": "internacional",
+    "name": {"es": "Resto del mundo", "ca": "Resta del món", "en": "Rest of the world"},
+    "rates": [
+      {"upTo": 500, "price": 14.0},
+      {"upTo": 1000, "price": 19.0},
+      {"upTo": 2000, "price": 26.0},
+      {"upTo": 100000, "price": 38.0}
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "_": "Lo general de la tienda. «lists»: qué fanzines salen en la tienda y qué autoras en autoras, en este orden (cada nombre es una carpeta de products/ o de authors/); lo que no está en ninguna lista no sale en la web. «description»: la que sale en Google y al compartir la portada.",
+  "title": "Quien no corre, vuela",
+  "url": "https://quiennocorrevuela.com",
+  "lang": "es",
+  "langs": ["es", "ca", "en"],
+  "description": {
+    "es": "Quien no corre, vuela es un proyecto editorial de autoedición que nace de la necesidad de crear colectivamente, entendiendo lo visual como un espacio de expresión, encuentro y comunicación.",
+    "ca": "Quien no corre, vuela és un projecte editorial d'autoedició que neix de la necessitat de crear col·lectivament, entenent allò visual com un espai d'expressió, trobada i comunicació.",
+    "en": "Quien no corre, vuela is a self-publishing editorial project born from the need to create collectively, understanding the visual as a space for expression, encounter and communication."
+  },
+  "lists": {
+    "shop": {
+      "name": {"es": "tienda", "ca": "botiga", "en": "shop"},
+      "projects": [
+        "la-mort-i-la-primavera",
+        "archivo-en-pixel",
+        "pont-neuf",
+        "black-cover",
+        "i-am-the-center-of-the-world",
+        "no-time-left-for-the-square"
+      ]
+    },
+    "authors": {
+      "name": {"es": "autoras", "ca": "autores", "en": "authors"},
+      "projects": ["mia-sala-patau"]
+    }
+  }
+}

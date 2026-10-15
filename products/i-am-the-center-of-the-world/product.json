@@ -1,0 +1,37 @@
+{
+  "title": "I am the center of the world",
+  "author": "Mia Sala-Patau",
+  "authorId": "mia-sala-patau",
+  "price": 12.0,
+  "weight": 90,
+  "details": {
+    "publisher": "quien no corre, vuela",
+    "binding": {"es": "encolado", "ca": "encolat", "en": "perfect-bound"},
+    "pages": 44,
+    "size": "221 × 90 mm",
+    "year": {"es": "diciembre 2025", "ca": "desembre 2025", "en": "December 2025"},
+    "edition": {
+      "es": "1ª edición · 50 copias",
+      "ca": "1a edició · 50 còpies",
+      "en": "1st edition · 50 copies"
+    }
+  },
+  "text": {
+    "es": [
+      "pictures from random lives del día que nací*",
+      "El recuerdo de un internet donde la necesidad de compartir generaba una memoria colectiva que, hoy en día, es un archivo vivo y me permite saber —a una escala minúscula— qué estaba pasando el día en que nací.",
+      "*o cómo dejar de ser el centro del mundo."
+    ],
+    "ca": [
+      "pictures from random lives del dia que vaig néixer*",
+      "El record d’un internet on la necessitat de compartir generava una memòria col·lectiva que avui en dia és un arxiu viu i em permet saber —en una minúscula escala— què passava el dia que jo naixia.",
+      "*o com deixar de ser el centre del món."
+    ],
+    "en": [
+      "pictures from random lives from the day i was born*",
+      "The memory of an internet where the need to share created a collective memory that today remains a living archive, allowing me to know —on a tiny scale— what was happening on the day i was born.",
+      "*or how to stop being the center of the world."
+    ]
+  },
+  "photos": ["1", "2", "3", "4", "5"]
+}

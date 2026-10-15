@@ -1,12 +1,14 @@
 /**
  * src/index.js — backend en un Cloudflare Worker (Hono).
  *
- * Worker con "static assets": Cloudflare sirve `public/` (la web) automáticamente y este
- * Worker atiende las rutas `/api/*`, y las páginas HTML pasan por src/seo.js para llevar sus meta.
+ * Worker con "static assets": Cloudflare sirve `dist/` (la web que escribe build/build.mjs,
+ * con el contenido ya dentro) y este Worker atiende `/api/*` y lleva las direcciones viejas
+ * (producto.html?id=…, about.html) a las nuevas.
  *
  * Filosofía JAMstack (de la semilla):
- *   - CATÁLOGO (productos, precios, peso, descripciones i18n) → public/data/productos.json (source of truth).
- *   - ENVÍOS (zonas + tramos por peso) → public/data/envios.json.
+ *   - CATÁLOGO: una carpeta por fanzine (products/<id>/product.json); el build los junta en
+ *     dist/data/products.json, que se importa aquí (source of truth de precio y peso).
+ *   - ENVÍOS (zonas + tarifas por peso) → data/shipping.json.
  *   - D1 sólo guarda lo MUTABLE: stock vivo, pedidos, altas de newsletter y mensajes de contacto.
  *
  * El precio/nombre/peso es SIEMPRE el del JSON desplegado; el cliente no puede manipularlo.
@@ -22,8 +24,9 @@
 import { Hono } from "hono";
 import Stripe from "stripe";
 
-import productos from "../public/data/productos.json";
-import envios from "../public/data/envios.json";
+// Lo escribe el build, que wrangler lanza antes de empaquetar este Worker ([build] en wrangler.toml).
+import productos from "../dist/data/products.json";
+import envios from "../data/shipping.json";
 import { precioEnvio, nombreDeZona, esZonaRecogida } from "../public/js/core/shared.js";
 import {
   notifPedidoNuevo,
@@ -32,16 +35,15 @@ import {
   notifPedidoEnviado,
   enSegundoPlano,
 } from "./notify.js";
-import { conMeta, sitemap } from "./seo.js";
 
 const app = new Hono().basePath("/api");
 
 // ─── helpers ─────────────────────────────────────────────
 const toCents = (eur) => Math.round(Number(eur) * 100);
 
-/** Nombre canónico de un producto (para Stripe / pedidos): título en ES. */
+/** Nombre canónico de un producto (para Stripe / pedidos): el título en una línea. */
 function nombreCanonico(p) {
-  return Array.isArray(p.titulo) ? p.titulo.join(" ") : p.nombre || String(p.id);
+  return [].concat(p.title || p.id).join(" ");
 }
 
 function findProducto(id) {
@@ -49,7 +51,7 @@ function findProducto(id) {
 }
 
 /** Países que acepta Stripe para dirección de envío (ISO 3166-1, sin los no soportados).
- *  Se usa para zonas sin lista `paises` propia en envios.json (p. ej. "internacional"). */
+ *  Se usa para zonas sin lista `countries` propia en data/shipping.json (p. ej. "internacional"). */
 const PAISES_STRIPE = [
   "AD","AE","AF","AG","AI","AL","AM","AO","AR","AT","AU","AW","AX","AZ","BA","BB","BD","BE","BF",
   "BG","BH","BI","BJ","BL","BM","BN","BO","BQ","BR","BS","BT","BW","BY","BZ","CA","CD","CF","CG",
@@ -65,9 +67,9 @@ const PAISES_STRIPE = [
   "UG","US","UY","UZ","VA","VC","VE","VG","VN","VU","WF","WS","XK","YE","ZA","ZM","ZW",
 ];
 
-/** Países permitidos para una zona: su lista `paises` del JSON, o todos los de Stripe. */
+/** Países permitidos para una zona: su lista `countries` del JSON, o todos los de Stripe. */
 function paisesDeZona(zona) {
-  return Array.isArray(zona.paises) && zona.paises.length ? zona.paises : PAISES_STRIPE;
+  return Array.isArray(zona.countries) && zona.countries.length ? zona.countries : PAISES_STRIPE;
 }
 
 /* El JSON no lleva stock: un fanzine nuevo sale agotado hasta que se le ponen
@@ -122,13 +124,13 @@ app.get("/health", (c) =>
 
 app.get("/productos", async (c) => {
   const stock = await fetchStock(c.env);
-  const activos = productos.filter((p) => p.activo !== false);
+  const activos = productos.filter((p) => !p.comingSoon);
   return c.json(activos.map((p) => hydrateProducto(p, stock)));
 });
 
 app.get("/productos/:id", async (c) => {
   const p = findProducto(c.req.param("id"));
-  if (!p || p.activo === false) return c.json({ error: "no encontrado" }, 404);
+  if (!p || p.comingSoon) return c.json({ error: "no encontrado" }, 404);
   const stock = await fetchStock(c.env, p.id);
   return c.json(hydrateProducto(p, stock));
 });
@@ -154,8 +156,9 @@ app.post("/crear-sesion", async (c) => {
     const it = carrito[i];
     const p = findProducto(it.id);
     if (!p) return c.json({ error: `producto ${it.id} no existe` }, 400);
-    if (p.activo === false) return c.json({ error: `producto ${it.id} no disponible` }, 400);
-    if (p.agotado === true) return c.json({ error: `producto ${it.id} agotado` }, 409);
+    if (p.comingSoon) return c.json({ error: `producto ${it.id} no disponible` }, 400);
+    // "soldOut": true en su product.json lo retira de la venta aunque D1 aún tenga stock.
+    if (p.soldOut === true) return c.json({ error: `producto ${it.id} agotado` }, 409);
 
     const cantidad = Number(it.cantidad);
     if (!Number.isInteger(cantidad) || cantidad <= 0)
@@ -170,15 +173,15 @@ app.post("/crear-sesion", async (c) => {
     if (disponible < cantidad)
       return c.json({ error: `sin stock para ${nombreCanonico(p)}`, disponible }, 409);
 
-    pesoTotal += (Number(p.peso) || 0) * cantidad;
+    pesoTotal += (Number(p.weight) || 0) * cantidad;
     resolved.push({ p, cantidad });
   }
 
   // Envío: obligatorio. Precio recalculado en el servidor (peso × zona), no se acepta del cliente.
   if (!envioReq?.zona) return c.json({ error: "falta la zona de envío" }, 400);
-  const zonaEnvio = envios.find((e) => e.zona === envioReq.zona);
+  const zonaEnvio = envios.find((e) => e.zone === envioReq.zona);
   if (!zonaEnvio) return c.json({ error: "zona de envío desconocida" }, 400);
-  const envioResolved = { zona: zonaEnvio.zona, precio: precioEnvio(zonaEnvio, pesoTotal) };
+  const envioResolved = { zona: zonaEnvio.zone, precio: precioEnvio(zonaEnvio, pesoTotal) };
   const esRecogida = esZonaRecogida(zonaEnvio);
 
   if (!c.env.STRIPE_SECRET_KEY) return c.json({ error: "pagos no configurados" }, 503);
@@ -189,11 +192,19 @@ app.post("/crear-sesion", async (c) => {
     price_data: {
       currency: "eur",
       product_data: { name: nombreCanonico(p), metadata: { id: String(p.id) } },
-      unit_amount: toCents(p.precio),
+      unit_amount: toCents(p.price),
     },
   }));
 
   const frontend = c.env.FRONTEND_URL || new URL(c.req.url).origin;
+
+  // Stripe limita cada valor de metadata a 500 caracteres. Con unas diez líneas distintas
+  // el carrito se pasa y la sesión falla con un error de Stripe que nadie entiende: se
+  // corta antes, con un mensaje claro (de semillaEcommerce).
+  const metaCarrito = JSON.stringify(resolved.map(({ p, cantidad }) => ({ id: p.id, cantidad })));
+  if (metaCarrito.length > 480) {
+    return c.json({ error: "el pedido tiene demasiados fanzines distintos; divídelo en dos compras" }, 400);
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -222,14 +233,11 @@ app.post("/crear-sesion", async (c) => {
       // La sesión caduca en 30 min (mínimo de Stripe): acorta la ventana en la que
       // alguien puede pagar stock que ya voló (el stock se descuenta en el webhook).
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      success_url: `${frontend}/gracias?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${frontend}/sorry`,
+      success_url: `${frontend}/gracias/?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontend}/sorry/`,
       // Metadata mínima (límite Stripe: 500 chars/valor): solo id+cantidad.
-      // El webhook re-enriquece nombre/precio desde productos.json.
-      metadata: {
-        carrito: JSON.stringify(resolved.map(({ p, cantidad }) => ({ id: p.id, cantidad }))),
-        zona: envioResolved.zona,
-      },
+      // El webhook re-enriquece nombre/precio desde el catálogo.
+      metadata: { carrito: metaCarrito, zona: envioResolved.zona },
     });
     return c.json({ url: session.url, id: session.id });
   } catch (err) {
@@ -283,7 +291,7 @@ app.post("/stripe-webhook", async (c) => {
         return {
           id: it.id,
           nombre: p ? nombreCanonico(p) : String(it.id),
-          precio: p ? p.precio : null,
+          precio: p ? p.price : null,
           cantidad: Number(it.cantidad),
         };
       });
@@ -298,6 +306,13 @@ app.post("/stripe-webhook", async (c) => {
       };
 
       await ensureRegistro(c.env);
+      // ¿Había stock cuando llegó el pago? Si dos personas compran la última unidad a la
+      // vez, las dos pagan. En vez de descubrirlo al hacer los paquetes, el pedido nace
+      // como "revisar" (de semillaEcommerce).
+      const disponible = await fetchStock(c.env);
+      const faltan = carrito.filter((it) => Number(disponible[it.id]?._ ?? 0) < Number(it.cantidad));
+      const estado = faltan.length ? "revisar" : "pendiente";
+      if (faltan.length) console.warn(`[webhook] SOBREVENTA: ${faltan.map((f) => f.id).join(", ")}`);
       const pedidoId = `ord_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       const stmts = [];
       for (const it of carrito) {
@@ -318,7 +333,7 @@ app.post("/stripe-webhook", async (c) => {
       stmts.push(
         c.env.DB.prepare(
           `INSERT INTO pedidos (id, stripe_session_id, email, amount_total, currency, items, zona, envio, estado)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')`
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).bind(
           pedidoId,
           session.id,
@@ -327,7 +342,8 @@ app.post("/stripe-webhook", async (c) => {
           session.currency,
           JSON.stringify(items),
           envioInfo.zona,
-          JSON.stringify(envioInfo)
+          JSON.stringify(envioInfo),
+          estado
         )
       );
       // El batch es atómico y stripe_session_id es UNIQUE: si Stripe reenvía el evento,
@@ -352,7 +368,18 @@ app.post("/stripe-webhook", async (c) => {
         Promise.all([notifPedidoNuevo(c.env, pedido), notifPedidoConfirmado(c.env, pedido)])
       );
     } catch (err) {
-      console.error("Error procesando checkout.session.completed:", err);
+      // DISTINGUIR AQUÍ ES CRÍTICO. Stripe reintenta un webhook mientras no reciba un 2xx.
+      //  · Evento repetido (choca el UNIQUE de stripe_session_id): el pedido YA está
+      //    registrado. Hay que devolver 200 o Stripe lo reenviará para siempre.
+      //  · Cualquier otro error (D1 caída, por ejemplo): NO se puede devolver 200. Stripe
+      //    daría el evento por entregado y el pedido pagado no existiría en ninguna parte.
+      //    Con 500, Stripe lo reintenta durante horas.
+      if (/UNIQUE|constraint failed/i.test(String(err?.message || ""))) {
+        console.log("[webhook] evento repetido, ya estaba registrado");
+      } else {
+        console.error("Error procesando checkout.session.completed:", err);
+        return c.text("error al registrar el pedido", 500);
+      }
     }
   }
 
@@ -413,7 +440,8 @@ admin.get("/historial", async (c) => {
   );
 });
 
-const ESTADOS_PEDIDO = ["pendiente", "enviado", "entregado", "cancelado"];
+// "revisar" lo pone el propio webhook cuando se vendió sin stock.
+const ESTADOS_PEDIDO = ["pendiente", "revisar", "enviado", "entregado", "cancelado"];
 
 admin.post("/pedido-estado", async (c) => {
   const { id, estado } = await c.req.json().catch(() => ({}));
@@ -507,23 +535,20 @@ admin.get("/stock-mov", async (c) => {
 
 app.route("/admin", admin);
 
-// El Worker: Hono atiende /api/*. Las páginas HTML pasan por aquí antes (run_worker_first en
-// wrangler.toml) para llevar sus meta de SEO; img/css/js/data los sirve Cloudflare directo.
+// El Worker: Hono atiende /api/*. Todo lo demás es dist/ y lo sirve Cloudflare sin pasar
+// por aquí; solo entran (run_worker_first en wrangler.toml) las direcciones viejas, que
+// llevan a las nuevas con un 301 por los enlaces que ya circulan:
+//   /producto.html?id=x, /producto?id=x  →  /producto/x/   (igual con autor)
+//   /about.html, /index.html             →  /about/, /
 export default {
   fetch(req, env, ctx) {
     const url = new URL(req.url);
     if (url.pathname.startsWith("/api/")) return app.fetch(req, env, ctx);
-    if (url.pathname === "/sitemap.xml") return sitemap(url.origin);
-    // Direcciones limpias: /producto/<id> y /autor/<id> sirven producto.html y
-    // autor.html, que leen el id de la dirección. Las de antes (producto.html?id=…,
-    // producto?id=…) llevan a las nuevas, por los enlaces que ya circulan.
-    const ficha = /^\/(producto|autor)\/([^/]+)\/?$/.exec(url.pathname);
-    if (ficha) {
-      return env.ASSETS.fetch(new Request(new URL(`/${ficha[1]}`, url), req)).then((res) => conMeta(res, url));
-    }
     const vieja = /^\/(producto|autor)(\.html)?$/.exec(url.pathname);
     const id = url.searchParams.get("id");
-    if (vieja && id) return Response.redirect(`${url.origin}/${vieja[1]}/${encodeURIComponent(id)}`, 301);
-    return env.ASSETS.fetch(req).then((res) => conMeta(res, url));
+    if (vieja && id) return Response.redirect(`${url.origin}/${vieja[1]}/${encodeURIComponent(id)}/`, 301);
+    const html = /^(.*?)(\/index)?\.html$/.exec(url.pathname);
+    if (html) return Response.redirect(`${url.origin}${html[1]}/${url.search}`, 301);
+    return env.ASSETS.fetch(req);
   },
 };

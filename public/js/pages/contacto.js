@@ -38,5 +38,4 @@ if (form) {
     }
   });
 
-  document.addEventListener("qnc:lang", () => (feedback.textContent = ""));
 }
