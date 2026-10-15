@@ -197,6 +197,7 @@ app.post("/crear-sesion", async (c) => {
   }));
 
   const frontend = c.env.FRONTEND_URL || new URL(c.req.url).origin;
+  const idioma = ["ca", "en"].includes(body.lang) ? `/${body.lang}` : "";
 
   // Stripe limita cada valor de metadata a 500 caracteres. Con unas diez líneas distintas
   // el carrito se pasa y la sesión falla con un error de Stripe que nadie entiende: se
@@ -233,8 +234,9 @@ app.post("/crear-sesion", async (c) => {
       // La sesión caduca en 30 min (mínimo de Stripe): acorta la ventana en la que
       // alguien puede pagar stock que ya voló (el stock se descuenta en el webhook).
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      success_url: `${frontend}/gracias/?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${frontend}/sorry/`,
+      // de vuelta de Stripe, a la página en el idioma en el que se compró
+      success_url: `${frontend}${idioma}/gracias/?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontend}${idioma}/sorry/`,
       // Metadata mínima (límite Stripe: 500 chars/valor): solo id+cantidad.
       // El webhook re-enriquece nombre/precio desde el catálogo.
       metadata: { carrito: metaCarrito, zona: envioResolved.zona },
@@ -389,8 +391,17 @@ app.post("/stripe-webhook", async (c) => {
 // ─── newsletter + contacto ───────────────────────────────
 const reEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
+/* Trampa para bots: los formularios llevan un campo "web" que una persona no ve y deja
+   vacío; un bot que rellena todo lo que encuentra lo rellena. Se le contesta que sí,
+   como a cualquiera, pero no se guarda nada (así no aprende a esquivarla).
+   shortcut: no para a un bot que llame a la API sin pasar por el formulario; si un día
+   llega basura igualmente, Turnstile (README, pendiente). */
+const esBot = (body) => Boolean(body?.web);
+
 app.post("/newsletter", async (c) => {
-  const { email } = await c.req.json().catch(() => ({}));
+  const body = await c.req.json().catch(() => ({}));
+  if (esBot(body)) return c.json({ ok: true });
+  const { email } = body;
   if (!email || !reEmail.test(String(email))) return c.json({ error: "email inválido" }, 400);
   await c.env.DB.prepare(`INSERT OR IGNORE INTO newsletter (email) VALUES (?)`)
     .bind(String(email).trim().toLowerCase())
@@ -399,7 +410,9 @@ app.post("/newsletter", async (c) => {
 });
 
 app.post("/contacto", async (c) => {
-  const { texto, email, nombre } = await c.req.json().catch(() => ({}));
+  const body = await c.req.json().catch(() => ({}));
+  if (esBot(body)) return c.json({ ok: true });
+  const { texto, email, nombre } = body;
   const msg = String(texto || "").trim();
   if (!msg) return c.json({ error: "mensaje vacío" }, 400);
   const id = `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;

@@ -27,11 +27,18 @@ function leer(rel) {
   try {
     return JSON.parse(texto);
   } catch (e) {
+    /* Node no siempre dice la línea (una coma de más da "Unexpected token ']'"):
+       entonces se busca una coma antes de ] o }, o una que falta (un valor y, en la
+       línea siguiente, otro). Como en semillaEcommerceJSON. */
+    const busca = (re) => { const m = re.exec(texto); return m ? texto.slice(0, m.index).split("\n").length : 0; };
     const pos = Number(/position (\d+)/.exec(e.message)?.[1]);
-    const lc = /line (\d+) column (\d+)/.exec(e.message);
-    const linea = lc ? lc[1] : Number.isFinite(pos) ? texto.slice(0, pos).split("\n").length : "?";
-    console.error(`\n✗ ${rel} no es un JSON válido (línea ${linea}). Casi siempre es una coma: `
-      + `que falta entre dos cosas, o que sobra después de la última. O unas comillas sin cerrar.\n`);
+    let linea = Number(/line (\d+)/.exec(e.message)?.[1])
+      || (Number.isFinite(pos) ? texto.slice(0, pos).split("\n").length : 0)
+      || busca(/,\s*[\]}]/) || busca(/[\d"\]}]\s*\n\s*["{[]/);
+    // "Expected ','": Node se da cuenta en la línea siguiente; la coma falta al final de la anterior
+    if (/Expected ','/.test(e.message) && linea > 1 && !/,\s*$/.test(texto.split("\n")[linea - 2])) linea--;
+    console.error(`\n✗ ${rel} no es un JSON válido${linea ? `, línea ${linea}:\n    ${texto.split("\n")[linea - 1]?.trim()}` : ""}\n`
+      + `  Casi siempre es una coma: que falta entre dos cosas, o que sobra después de la última. O unas comillas sin cerrar.\n`);
     process.exit(1);
   }
 }

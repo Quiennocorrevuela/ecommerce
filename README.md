@@ -148,7 +148,7 @@ Para abrir la tienda (nada de esto es programar):
 
 Código (de `semillaEcommerce/TODO.md`, también pendiente allí):
 
-- [ ] Turnstile en `/api/newsletter` y `/api/contacto` (están abiertos a bots) · 2 h
+- [ ] Turnstile en `/api/newsletter` y `/api/contacto`, **solo si llega basura**: ya tienen una
+      trampa invisible (un campo `web` que una persona deja vacío) que para a los bots tontos · 2 h
 - [ ] Reponer stock al devolver: escuchar `charge.refunded` y apuntarlo en el registro · 3 h
 - [ ] El carrito en D1 en vez de en la metadata de Stripe (quita el tope de ~10 líneas) · 4 h
-- [ ] Los avisos del carrito ("la bolsa ha cambiado") y la página de gracias, en los tres idiomas · 30 min

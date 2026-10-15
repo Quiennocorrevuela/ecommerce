@@ -17,6 +17,8 @@
           <p class="lead" data-i18n="news.title">apúntate a nuestra newsletter!!!</p>
           <form class="form-bloque" data-newsletter novalidate>
             <input type="email" name="email" required data-i18n-ph="news.placeholder" autocomplete="email" />
+            <!-- trampa para bots: una persona no la ve y la deja vacía (ver src/index.js) -->
+            <input class="trampa" type="text" name="web" tabindex="-1" autocomplete="off" aria-hidden="true" />
             <div><button type="submit" data-i18n="news.send">enviar</button></div>
             <div class="form-feedback" data-feedback></div>
           </form>

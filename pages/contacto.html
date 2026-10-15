@@ -18,6 +18,8 @@
           <form class="form-bloque" data-contacto novalidate>
             <textarea name="texto" required data-i18n-ph="contact.placeholder"></textarea>
             <input type="email" name="email" data-i18n-ph="contact.email" autocomplete="email" />
+            <!-- trampa para bots: una persona no la ve y la deja vacía (ver src/index.js) -->
+            <input class="trampa" type="text" name="web" tabindex="-1" autocomplete="off" aria-hidden="true" />
             <div><button type="submit" data-i18n="contact.send">enviar</button></div>
             <div class="form-feedback" data-feedback></div>
           </form>

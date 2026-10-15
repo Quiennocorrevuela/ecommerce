@@ -25,7 +25,7 @@ if (form) {
       const res = await fetch(`${CONFIG.API_BASE}/contacto`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texto: msg, email: email.value.trim() }),
+        body: JSON.stringify({ texto: msg, email: email.value.trim(), web: form.elements.web?.value || "" }),
       });
       if (!res.ok) throw new Error("http " + res.status);
       feedback.textContent = I18N.s("contact.ok");

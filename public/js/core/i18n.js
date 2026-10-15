@@ -32,6 +32,17 @@ const STRINGS = {
   "cart.weight": { es: "Peso total", ca: "Pes total", en: "Total weight" },
   "cart.pay": { es: "pagar", ca: "pagar", en: "checkout" },
   "cart.continue": { es: "seguir comprando", ca: "seguir comprant", en: "keep shopping" },
+  // al abrir el checkout, si la bolsa ha cambiado desde que se llenó ({n}: el fanzine)
+  "cart.changed": { es: "La bolsa ha cambiado", ca: "La cistella ha canviat", en: "Your cart has changed" },
+  "cart.gone": { es: "{n} ya no está a la venta y se ha quitado de la bolsa.", ca: "{n} ja no està a la venda i s'ha tret de la cistella.", en: "{n} is no longer for sale and has been removed from your cart." },
+  "cart.soldout": { es: "{n} se ha agotado y se ha quitado de la bolsa.", ca: "{n} s'ha exhaurit i s'ha tret de la cistella.", en: "{n} has sold out and has been removed from your cart." },
+  "cart.fewer": { es: "Unidades que quedan de {n}: {q}. Hemos ajustado la cantidad.", ca: "Unitats que queden de {n}: {q}. Hem ajustat la quantitat.", en: "Units left of {n}: {q}. We've adjusted the quantity." },
+  "cart.price": { es: "El precio de {n} ha cambiado de {a} a {b}.", ca: "El preu de {n} ha canviat de {a} a {b}.", en: "The price of {n} has changed from {a} to {b}." },
+  "thanks.title": { es: "¡gracias!", ca: "gràcies!", en: "thank you!" },
+  "thanks.text": { es: "Tu pedido se ha confirmado. Te escribiremos pronto.", ca: "La teva comanda s'ha confirmat. T'escriurem aviat.", en: "Your order is confirmed. We'll write to you soon." },
+  "thanks.receipt": { es: "Recibo enviado a", ca: "Rebut enviat a", en: "Receipt sent to" },
+  "sorry.title": { es: "pago cancelado", ca: "pagament cancel·lat", en: "payment cancelled" },
+  "sorry.text": { es: "No se ha realizado ningún cargo. Tu carrito sigue intacto.", ca: "No s'ha fet cap càrrec. La teva cistella continua igual.", en: "You haven't been charged. Your cart is still there." },
   "product.add": { es: "añadir al carrito", ca: "afegir a la cistella", en: "add to cart" },
   "product.added": { es: "Añadido al carrito", ca: "Afegit a la cistella", en: "Added to cart" },
   "product.soldout": { es: "agotado", ca: "exhaurit", en: "sold out" },
@@ -68,9 +79,12 @@ function t(obj, l = lang) {
   return String(obj);
 }
 
-function s(key, l = lang) {
+/** s("cart.gone", { n: "Pont Neuf" }) → "Pont Neuf ya no está a la venta…" */
+function s(key, vars = {}, l = lang) {
+  if (typeof vars === "string") [l, vars] = [vars, {}]; // s(key, "ca"), como lo llama el build
   const o = STRINGS[key];
-  return o ? o[l] ?? o.es : key;
+  const txt = o ? o[l] ?? o.es : key;
+  return txt.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
 }
 
 /** El prefijo de las direcciones en un idioma: "" (es), "/ca", "/en". */

@@ -82,7 +82,7 @@ async function pagar(e) {
     const res = await fetch(`${CONFIG.API_BASE}/crear-sesion`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ carrito: getCart(), envio: { zona: zonaSel } }),
+      body: JSON.stringify({ carrito: getCart(), envio: { zona: zonaSel }, lang: I18N.lang }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "error");
@@ -96,11 +96,8 @@ async function pagar(e) {
 
 /** Los avisos de revisarCarrito(), en frases para quien compra. */
 function frase(a) {
-  if (a.tipo === "desaparecido") return `${a.nombre} ya no está a la venta y se ha quitado de la bolsa.`;
-  if (a.tipo === "agotado") return `${a.nombre} se ha agotado y se ha quitado de la bolsa.`;
-  if (a.tipo === "menos") return `De ${a.nombre} solo queda${a.quedan === 1 ? "" : "n"} ${a.quedan}: hemos ajustado la cantidad.`;
-  if (a.tipo === "precio") return `El precio de ${a.nombre} ha cambiado de ${formatPrice(a.antes)} a ${formatPrice(a.ahora)}.`;
-  return "";
+  const clave = { desaparecido: "cart.gone", agotado: "cart.soldout", menos: "cart.fewer", precio: "cart.price" }[a.tipo];
+  return clave ? I18N.s(clave, { n: a.nombre, q: a.quedan, a: formatPrice(a.antes), b: formatPrice(a.ahora) }) : "";
 }
 
 async function avisosDelCarrito() {
@@ -111,7 +108,7 @@ async function avisosDelCarrito() {
   const caja = document.createElement("div");
   caja.className = "avisos-carrito";
   caja.setAttribute("role", "status");
-  caja.innerHTML = `<p><b>La bolsa ha cambiado</b></p><ul>${avisos.map((a) => `<li>${escapeHtml(frase(a))}</li>`).join("")}</ul>`;
+  caja.innerHTML = `<p><b>${escapeHtml(I18N.s("cart.changed"))}</b></p><ul>${avisos.map((a) => `<li>${escapeHtml(frase(a))}</li>`).join("")}</ul>`;
   document.querySelector("main")?.prepend(caja);
 }
 

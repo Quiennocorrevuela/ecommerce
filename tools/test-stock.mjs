@@ -10,7 +10,7 @@
  *
  * Firma el webhook de Stripe de verdad (HMAC con el mismo secreto) y comprueba
  * que una venta baja el stock y queda apuntada, y que un webhook repetido no
- * descuenta dos veces.
+ * descuenta dos veces. Y que la trampa para bots de los formularios funciona.
  */
 import { createHmac } from "node:crypto";
 
@@ -89,6 +89,19 @@ comprobar("pedir 2 cuando queda 1: el pedido nace como «revisar»", pedido?.est
 comprobar("y el stock se queda en 0, no en negativo", (await stock()) === 0);
 reg = await registro();
 comprobar("el registro apunta lo que había de verdad", reg[0].cambio === -1 && /quedaban 1/.test(reg[0].nota), reg[0]);
+
+console.log("formularios: la trampa para bots");
+const enviar = (ruta, datos) => fetch(`${BASE}/${ruta}`, {
+  method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(datos) }).then((r) => r.json());
+const marca = Date.now();
+comprobar("un bot recibe un «ok»", (await enviar("newsletter", { email: `bot${marca}@spam.test`, web: "http://spam" })).ok === true);
+await enviar("newsletter", { email: `persona${marca}@prueba.cat`, web: "" });
+const lista = JSON.stringify(await (await fetch(`${BASE}/admin/newsletter`, { headers: AUTH })).json());
+comprobar("pero su email no se guarda", !lista.includes(`bot${marca}@`));
+comprobar("y el de una persona sí", lista.includes(`persona${marca}@`));
+await enviar("contacto", { texto: `spam ${marca}`, web: "x" });
+const mensajes = JSON.stringify(await (await fetch(`${BASE}/admin/mensajes`, { headers: AUTH })).json());
+comprobar("ni su mensaje de contacto", !mensajes.includes(`spam ${marca}`));
 
 console.log(ko ? `\n✗ ${ko} fallo(s) de ${ok + ko}` : `\n✓ ${ok} comprobaciones, 0 fallos`);
 process.exit(ko ? 1 : 0);

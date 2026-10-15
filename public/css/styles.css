@@ -886,3 +886,7 @@ main {
 .avisos-carrito p { margin: 0 0 0.5rem; }
 .avisos-carrito ul { margin: 0; padding-left: 1.1rem; }
 .avisos-carrito li { margin-bottom: 0.3rem; }
+
+/* La trampa para bots de los formularios: fuera de la pantalla, no display:none
+   (algunos bots se saltan los campos escondidos así) */
+.trampa { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }

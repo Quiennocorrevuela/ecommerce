@@ -315,7 +315,8 @@ ${main.html}
       .replace(/\ssrc="(?!\/|https?:)([^"]+)"/g, ' src="/$1"')
       .replace(/\shref="\/([^"]*)"/g, (_, p) => ` href="${url(l, p)}"`);
     const path = `${nombreFichero}/`;
-    const clave = { checkout: "cart.title", newsletter: "nav.newsletter", contacto: "nav.contacto", legal: "nav.legal" }[nombreFichero];
+    const clave = { checkout: "cart.title", newsletter: "nav.newsletter", contacto: "nav.contacto", legal: "nav.legal",
+                    gracias: "thanks.title", sorry: "sorry.title" }[nombreFichero];
     return pagina({
       l, path, js: nombreFichero, main: { clase, html: cuerpo.replace(/^\n|\s+$/g, "") },
       title: clave ? titulo(clave, l) : tituloFichero, desc: descSitio(l),

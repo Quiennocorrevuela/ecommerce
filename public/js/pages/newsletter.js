@@ -25,7 +25,7 @@ if (form) {
       const res = await fetch(`${CONFIG.API_BASE}/newsletter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, web: form.elements.web?.value || "" }),
       });
       if (!res.ok) throw new Error("http " + res.status);
       feedback.textContent = I18N.s("news.ok");
