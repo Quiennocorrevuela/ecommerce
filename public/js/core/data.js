@@ -2,18 +2,18 @@
  * core/data.js — capa de datos (catálogo, autoras, eventos, envíos) + utilidades.
  *
  * Estrategia JAMstack: el catálogo se lee de los JSON estáticos del repo, así la web se
- * previsualiza sin backend. El stock vivo se pide a /api/stock; si no está disponible,
- * se cae a stockInicial declarado en el propio JSON.
+ * previsualiza sin backend. El stock vivo se pide a /api/stock; si no está disponible
+ * (o el fanzine aún no tiene unidades en /admin/stock), sale agotado.
  *
  * Modelo de producto (data/productos.json):
  *   { id, titulo:[líneas], autor, autorId, precio, peso(g), imgs:[...], ficha:{...},
- *     descripcion:{es,ca,en}, stockInicial, activo }
+ *     descripcion:{es,ca,en}, activo }
  */
 import { CONFIG } from "./config.js";
-import { normalizeStockInicial, precioEnvio } from "./shared.js";
+import { precioEnvio } from "./shared.js";
 
-// Re-exportadas desde el módulo compartido para no romper quien las importa de aquí (p. ej. checkout.js).
-export { normalizeStockInicial, precioEnvio };
+// Re-exportada desde el módulo compartido para no romper quien la importa de aquí (p. ej. checkout.js).
+export { precioEnvio };
 
 // ─── utilidades ──────────────────────────────────────────
 export function escapeHtml(str) {
@@ -70,7 +70,7 @@ function hydrate(raw, stock) {
     ...raw,
     titulo: Array.isArray(raw.titulo) ? raw.titulo : [raw.titulo],
     imgs: Array.isArray(raw.imgs) ? raw.imgs : raw.img ? [raw.img] : [],
-    stockByTalla: (stock && stock[raw.id]) || normalizeStockInicial(raw.stockInicial),
+    stockByTalla: (stock && stock[raw.id]) || {},
   };
 }
 

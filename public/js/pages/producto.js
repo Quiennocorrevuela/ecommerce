@@ -11,7 +11,8 @@ import { tituloHTML, toast } from "../core/ui.js";
 mountLayout();
 
 const root = document.querySelector("[data-producto]");
-const id = new URLSearchParams(location.search).get("id");
+// /producto/<id> (y, por si acaso, el ?id= de antes)
+const id = decodeURIComponent(location.pathname.split("/")[2] || "") || new URLSearchParams(location.search).get("id");
 let p = null;
 let conPagina = false; // la autora tiene su página en autores.json
 let idx = 0;
@@ -66,7 +67,7 @@ function infoHTML() {
       <h1 class="producto-titulo">${tituloHTML(p.titulo)}</h1>
       <div class="producto-meta">
         ${conPagina
-          ? `<a class="autor" href="autor.html?id=${encodeURIComponent(p.autorId)}">${escapeHtml(p.autor)}</a>`
+          ? `<a class="autor" href="/autor/${encodeURIComponent(p.autorId)}">${escapeHtml(p.autor)}</a>`
           : `<span class="autor">${escapeHtml(p.autor)}</span>`}
         <span class="precio">${formatPrice(p.precio)}</span>
       </div>

@@ -5,71 +5,126 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Stock — Admin</title>
     <link rel="stylesheet" href="../css/styles.css" />
+    <style>
+      .admin table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+      .admin th, .admin td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+      .admin .num { text-align: right; white-space: nowrap; }
+      .admin .num input { width: 5rem; }
+      .admin .enlace { all: unset; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; }
+      .admin .hist td { background: rgba(0, 0, 0, 0.03); font-size: 0.82rem; }
+      .admin .registro td { border: 0; padding: 0.2rem 0.5rem; }
+      .admin .acciones { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; margin: 1.2rem 0; }
+      .admin .suave { color: var(--muted); }
+    </style>
   </head>
   <body>
     <main class="admin">
-      <h1>Gestión de stock</h1>
+      <h1>Stock</h1>
       <p><a href="index.html">← volver</a></p>
-      <div id="lista"></div>
-      <button id="guardar">Guardar cambios</button>
+
+      <p class="suave">Cuántos quedan de cada fanzine. Con 0 sale <em>agotado</em> en la
+        web. Las ventas las resta la web sola.</p>
+
+      <table id="tabla" hidden>
+        <thead>
+          <tr><th>Fanzine</th><th class="num">Quedan</th><th class="num">Vendidos</th><th class="num">Añadir</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p id="estado">cargando…</p>
+
+      <div class="acciones" id="acciones" hidden>
+        <label>Nota <input id="nota" type="text" placeholder="p. ej. la tirada, de la imprenta" size="30" /></label>
+        <button id="guardar" type="button">Guardar</button>
+        <span id="feedback"></span>
+      </div>
+
+      <p class="suave"><b>Añadir</b>: cuántos llegan (<code>30</code>). Para quitar, en
+        negativo (<code>-1</code>, si se rompe uno o se regala). Cada cambio queda
+        apuntado con la fecha y la nota: pulsa el nombre de un fanzine para ver su
+        registro. Un fanzine nuevo del JSON sale aquí con 0 hasta que le añades.</p>
     </main>
 
     <script>
       const token = localStorage.getItem("qnc.admin") || "";
+      const $ = (s) => document.querySelector(s);
+      const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const nombre = (p) => (Array.isArray(p.titulo) ? p.titulo.join(" ") : p.titulo || p.id);
+      const fecha = (s) => new Date(String(s).replace(" ", "T") + "Z").toLocaleString("es", {
+        day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
       let productos = [];
-      const nombre = (p) => Array.isArray(p.titulo) ? p.titulo.join(" ") : (p.nombre || p.id);
+      let registro = [];
 
       async function load() {
-        if (!token) return alert("Guarda el token en /admin primero");
-        const res = await fetch(`/api/productos`);
-        productos = await res.json();
+        if (!token) return ($("#estado").textContent = "Guarda el token en /admin primero.");
+        const auth = { headers: { Authorization: `Bearer ${token}` } };
+        const [catalogo, stock, mov] = await Promise.all([
+          fetch("/data/productos.json", { cache: "no-cache" }).then((r) => r.json()),
+          fetch("/api/stock").then((r) => (r.ok ? r.json() : {})),
+          fetch("/api/admin/stock-mov", auth).then((r) => (r.ok ? r.json() : null)),
+        ]);
+        if (!mov) return ($("#estado").textContent = "El token no vale: vuelve a /admin.");
+        registro = mov;
+        productos = catalogo.map((p) => ({
+          id: p.id,
+          nombre: nombre(p),
+          quedan: Object.values(stock[p.id] || {}).reduce((a, b) => a + Number(b), 0),
+          vendidos: mov.filter((m) => m.producto_id === p.id && m.motivo === "venta")
+                       .reduce((n, m) => n - Number(m.cambio), 0),
+        }));
         render();
       }
 
+      const historial = (p) => {
+        const filas = registro.filter((m) => m.producto_id === p.id);
+        if (!filas.length) return "Todavía no hay ningún movimiento.";
+        return `<table class="registro"><tbody>${filas.map((m) => `
+          <tr><td>${fecha(m.createdAt)}</td>
+              <td class="num">${m.cambio > 0 ? "+" : ""}${esc(m.cambio)}</td>
+              <td>${esc(m.motivo)}</td>
+              <td>${esc(m.nota || "")}${m.pedido_id ? ` <span class="suave">${esc(m.pedido_id)}</span>` : ""}</td></tr>`).join("")}
+        </tbody></table>`;
+      };
+
       function render() {
-        document.getElementById("lista").innerHTML = productos
-          .map(
-            (p, i) => `
-            <fieldset>
-              <legend>${nombre(p)} (${p.id})</legend>
-              ${Object.entries(p.stockByTalla || { _: 0 })
-                .map(
-                  ([t, n]) => `
-                  <label>
-                    ${t === "_" ? "stock" : "talla " + t}:
-                    <input type="number" min="0" value="${n}"
-                      data-prod="${i}" data-talla="${t}">
-                  </label>
-                `
-                )
-                .join("")}
-            </fieldset>
-          `
-          )
-          .join("");
+        $("#tabla tbody").innerHTML = productos.map((p, i) => `
+          <tr>
+            <td><button type="button" class="enlace" data-hist="${i}" aria-expanded="false">${esc(p.nombre)}</button></td>
+            <td class="num">${p.quedan}</td>
+            <td class="num">${p.vendidos}</td>
+            <td class="num"><input type="number" step="1" placeholder="0" data-prod="${i}"
+                  aria-label="cuántos llegan de ${esc(p.nombre)}" /></td>
+          </tr>
+          <tr class="hist" data-hist-de="${i}" hidden><td colspan="4">${historial(p)}</td></tr>`).join("");
+        $("#estado").hidden = true;
+        $("#tabla").hidden = false;
+        $("#acciones").hidden = false;
       }
 
-      document.getElementById("guardar").addEventListener("click", async () => {
-        const payload = productos.map((p) => ({
-          id: p.id,
-          stockByTalla: { ...(p.stockByTalla || {}) },
-        }));
-        document.querySelectorAll("input[data-prod]").forEach((inp) => {
-          const pi = Number(inp.dataset.prod);
-          const t = inp.dataset.talla;
-          payload[pi].stockByTalla[t] = Number(inp.value) || 0;
-        });
+      $("#tabla").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-hist]");
+        if (!b) return;
+        const fila = document.querySelector(`[data-hist-de="${b.dataset.hist}"]`);
+        fila.hidden = !fila.hidden;
+        b.setAttribute("aria-expanded", String(!fila.hidden));
+      });
 
-        const res = await fetch(`/api/admin/stock-bulk`, {
+      $("#guardar").addEventListener("click", async (e) => {
+        const btn = e.currentTarget;
+        const payload = [...document.querySelectorAll("input[data-prod]")]
+          .map((inp) => ({ id: productos[Number(inp.dataset.prod)].id, suma: Math.trunc(Number(inp.value) || 0) }))
+          .filter((u) => u.suma !== 0);
+        if (!payload.length) return ($("#feedback").textContent = "no hay nada que guardar");
+        btn.disabled = true;
+        const res = await fetch("/api/admin/stock-bulk", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ productos: payload }),
-        });
-        if (res.ok) alert("Guardado");
-        else alert("Error: " + res.status);
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ productos: payload, nota: $("#nota").value.trim() }),
+        }).catch(() => null);
+        btn.disabled = false;
+        $("#feedback").textContent = !res ? "sin conexión" : res.ok ? "guardado ✓" : "error " + res.status;
+        if (res?.ok) { $("#nota").value = ""; await load(); }
       });
 
       load();

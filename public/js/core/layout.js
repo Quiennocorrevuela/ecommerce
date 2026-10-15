@@ -11,13 +11,13 @@ import { I18N } from "./i18n.js";
 import { renderCartBadge } from "./cart.js";
 
 const NAV = [
-  { href: "index.html", key: "nav.tienda" },
-  { href: "about.html", key: "nav.nosotras" },
-  { href: "calendario.html", key: "nav.calendario" },
-  { href: "newsletter.html", key: "nav.newsletter" },
-  { href: "contacto.html", key: "nav.contacto" },
-  { href: "autores.html", key: "nav.autoras" },
-  { href: "legal.html", key: "nav.legal" },
+  { href: "/", key: "nav.tienda" },
+  { href: "/about", key: "nav.nosotras" },
+  { href: "/calendario", key: "nav.calendario" },
+  { href: "/newsletter", key: "nav.newsletter" },
+  { href: "/contacto", key: "nav.contacto" },
+  { href: "/autores", key: "nav.autoras" },
+  { href: "/legal", key: "nav.legal" },
 ];
 
 function build() {
@@ -25,11 +25,11 @@ function build() {
   wrap.innerHTML = `
     <header class="qnc-header">
       <button class="btn-menu" data-menu-open type="button"><span data-i18n="menu">menú</span></button>
-      <a class="hdr-logo" href="index.html" aria-label="${CONFIG.TIENDA_NOMBRE}">
-        <img src="img/logo.webp" alt="${CONFIG.TIENDA_NOMBRE}" />
+      <a class="hdr-logo" href="/" aria-label="${CONFIG.TIENDA_NOMBRE}">
+        <img src="/img/logo.webp" alt="${CONFIG.TIENDA_NOMBRE}" />
       </a>
-      <a class="hdr-cart" href="checkout.html" aria-label="carrito">
-        <img src="img/iconos/carro.webp" alt="" />
+      <a class="hdr-cart" href="/checkout" aria-label="carrito">
+        <img src="/img/iconos/carro.webp" alt="" />
         <span class="cart-badge" data-cart-count></span>
       </a>
     </header>
@@ -45,7 +45,8 @@ function build() {
     </nav>
     <div class="menu-overlay" data-menu-overlay></div>
   `;
-  const here = location.pathname.split("/").pop() || "index.html";
+  // "/about.html", "/about/" y "/about" son la misma página
+  const here = location.pathname.replace(/(\/index)?\.html$/, "").replace(/(.)\/$/, "$1") || "/";
   wrap.querySelectorAll(".qnc-menu a").forEach((a) => {
     if (a.getAttribute("href") === here) a.classList.add("is-active");
   });
@@ -53,8 +54,7 @@ function build() {
 
   // Firma del estudio al pie. Solo en "nosotras": es un crédito, no una marca
   // que tenga que ir debajo de cada fanzine.
-  const page = here.replace(/\.html$/, "");
-  if (page === "about" && !document.querySelector(".qnc-footer")) {
+  if (here === "/about" && !document.querySelector(".qnc-footer")) {
     const footer = document.createElement("footer");
     footer.className = "qnc-footer";
     footer.innerHTML = `ecommerce: <a href="https://meowrhino.studio" target="_blank" rel="noopener noreferrer">meowrhino.studio</a>`;

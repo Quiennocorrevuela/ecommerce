@@ -24,7 +24,7 @@ import Stripe from "stripe";
 
 import productos from "../public/data/productos.json";
 import envios from "../public/data/envios.json";
-import { normalizeStockInicial, precioEnvio, nombreDeZona, esZonaRecogida } from "../public/js/core/shared.js";
+import { precioEnvio, nombreDeZona, esZonaRecogida } from "../public/js/core/shared.js";
 import {
   notifPedidoNuevo,
   notifPedidoConfirmado,
@@ -70,29 +70,35 @@ function paisesDeZona(zona) {
   return Array.isArray(zona.paises) && zona.paises.length ? zona.paises : PAISES_STRIPE;
 }
 
-/** Inicializa stock en D1 desde stockInicial. Idempotente, memoizado por isolate.
- *  Si falla (D1 caído), se descarta la promesa para que el siguiente request reintente. */
-let stockInitPromise = null;
-function ensureStock(env) {
-  if (stockInitPromise) return stockInitPromise;
-  stockInitPromise = (async () => {
-    const stmts = [];
-    for (const p of productos) {
-      const inicial = normalizeStockInicial(p.stockInicial);
-      for (const [talla, cantidad] of Object.entries(inicial)) {
-        stmts.push(
-          env.DB.prepare(
-            `INSERT OR IGNORE INTO stock (producto_id, talla, cantidad) VALUES (?, ?, ?)`
-          ).bind(String(p.id), String(talla), cantidad)
-        );
-      }
-    }
-    if (stmts.length) await env.DB.batch(stmts);
-  })().catch((err) => {
-    stockInitPromise = null;
+/* El JSON no lleva stock: un fanzine nuevo sale agotado hasta que se le ponen
+   unidades en /admin/stock. Todo cambio de stock queda en el registro
+   (stock_mov): lo que entra, lo que se vende y lo que se corrige. */
+
+/** Crea el registro si no está (el código puede llegar antes que la migración).
+ *  Si ya había stock, entra como una línea "inicial". Memoizado por isolate;
+ *  si falla (D1 caído), se descarta la promesa para que el siguiente request reintente. */
+let registroPromise = null;
+function ensureRegistro(env) {
+  if (registroPromise) return registroPromise;
+  registroPromise = env.DB.batch([
+    env.DB.prepare(`CREATE TABLE IF NOT EXISTS stock_mov (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      producto_id TEXT NOT NULL,
+      talla       TEXT NOT NULL DEFAULT '_',
+      cambio      INTEGER NOT NULL,   -- +20 entran, -1 se vende
+      motivo      TEXT NOT NULL,      -- inicial | entrada | salida | ajuste | venta
+      nota        TEXT,
+      pedido_id   TEXT,
+      created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+    )`),
+    env.DB.prepare(`INSERT INTO stock_mov (producto_id, talla, cambio, motivo, nota)
+    SELECT producto_id, talla, cantidad, 'inicial', 'stock al empezar el registro'
+      FROM stock WHERE cantidad > 0 AND NOT EXISTS (SELECT 1 FROM stock_mov)`),
+  ]).catch((err) => {
+    registroPromise = null;
     throw err;
   });
-  return stockInitPromise;
+  return registroPromise;
 }
 
 async function fetchStock(env, productoId = null) {
@@ -115,14 +121,12 @@ app.get("/health", (c) =>
 );
 
 app.get("/productos", async (c) => {
-  await ensureStock(c.env);
   const stock = await fetchStock(c.env);
   const activos = productos.filter((p) => p.activo !== false);
   return c.json(activos.map((p) => hydrateProducto(p, stock)));
 });
 
 app.get("/productos/:id", async (c) => {
-  await ensureStock(c.env);
   const p = findProducto(c.req.param("id"));
   if (!p || p.activo === false) return c.json({ error: "no encontrado" }, 404);
   const stock = await fetchStock(c.env, p.id);
@@ -132,7 +136,6 @@ app.get("/productos/:id", async (c) => {
 app.get("/envios", (c) => c.json(envios));
 
 app.get("/stock", async (c) => {
-  await ensureStock(c.env);
   return c.json(await fetchStock(c.env));
 });
 
@@ -143,8 +146,6 @@ app.post("/crear-sesion", async (c) => {
   const envioReq = body.envio || null;
 
   if (!carrito.length) return c.json({ error: "carrito vacío" }, 400);
-
-  await ensureStock(c.env);
 
   // Resolver cada ítem contra el JSON (precio/peso) y contra D1 (stock).
   const resolved = [];
@@ -221,8 +222,8 @@ app.post("/crear-sesion", async (c) => {
       // La sesión caduca en 30 min (mínimo de Stripe): acorta la ventana en la que
       // alguien puede pagar stock que ya voló (el stock se descuenta en el webhook).
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      success_url: `${frontend}/gracias.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${frontend}/sorry.html`,
+      success_url: `${frontend}/gracias?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontend}/sorry`,
       // Metadata mínima (límite Stripe: 500 chars/valor): solo id+cantidad.
       // El webhook re-enriquece nombre/precio desde productos.json.
       metadata: {
@@ -296,15 +297,24 @@ app.post("/stripe-webhook", async (c) => {
         telefono: session.customer_details?.phone || null,
       };
 
+      await ensureRegistro(c.env);
+      const pedidoId = `ord_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       const stmts = [];
       for (const it of carrito) {
+        // Primero se apunta en el registro lo que baja de verdad (nunca más de lo
+        // que quedaba), y después se baja.
         stmts.push(
+          c.env.DB.prepare(
+            `INSERT INTO stock_mov (producto_id, talla, cambio, motivo, pedido_id, nota)
+             SELECT ?1, '_', -MIN(?2, q), 'venta', ?3,
+                    CASE WHEN q < ?2 THEN 'pedidas ' || ?2 || ', quedaban ' || q END
+               FROM (SELECT COALESCE((SELECT cantidad FROM stock WHERE producto_id = ?1 AND talla = '_'), 0) AS q)`
+          ).bind(String(it.id), Number(it.cantidad), pedidoId),
           c.env.DB.prepare(
             `UPDATE stock SET cantidad = MAX(0, cantidad - ?) WHERE producto_id = ? AND talla = '_'`
           ).bind(Number(it.cantidad), String(it.id))
         );
       }
-      const pedidoId = `ord_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       stmts.push(
         c.env.DB.prepare(
           `INSERT INTO pedidos (id, stripe_session_id, email, amount_total, currency, items, zona, envio, estado)
@@ -440,23 +450,59 @@ admin.get("/mensajes", async (c) => {
   return c.json(results);
 });
 
+/* Cada producto, una de dos:
+     {id, talla?, suma: 20}       → llegan 20 (o -1: se ha roto uno). Es lo que usa el panel.
+     {id, stockByTalla: {_: 5}}   → "ahora hay 5" (formato de la semilla).
+   Las dos quedan en el registro: entrada o salida, o ajuste con la diferencia.
+   Nunca baja de 0: se apunta el cambio que ha habido de verdad. */
 admin.post("/stock-bulk", async (c) => {
-  const { productos: updates = [] } = await c.req.json().catch(() => ({}));
+  const { productos: updates = [], nota = "" } = await c.req.json().catch(() => ({}));
   if (!Array.isArray(updates)) return c.json({ error: "productos debe ser array" }, 400);
-  const stmts = [];
+  await ensureRegistro(c.env);
+  const actual = await fetchStock(c.env);
+  const cambios = [];
   for (const u of updates) {
-    if (!u?.id || !u?.stockByTalla) continue;
-    for (const [talla, cantidad] of Object.entries(u.stockByTalla)) {
-      stmts.push(
-        c.env.DB.prepare(
-          `INSERT INTO stock (producto_id, talla, cantidad) VALUES (?, ?, ?)
-           ON CONFLICT (producto_id, talla) DO UPDATE SET cantidad = excluded.cantidad`
-        ).bind(String(u.id), String(talla), Math.max(0, Number(cantidad) || 0))
-      );
+    if (!u?.id) continue;
+    const id = String(u.id);
+    const hay = (t) => Number(actual[id]?.[t] ?? 0);
+    if (Number.isInteger(Number(u.suma)) && Number(u.suma) !== 0) {
+      const t = String(u.talla ?? "_"), s = Number(u.suma);
+      cambios.push([id, t, Math.max(0, hay(t) + s), s > 0 ? "entrada" : "salida"]);
+    } else if (u.stockByTalla && typeof u.stockByTalla === "object") {
+      for (const [t, n] of Object.entries(u.stockByTalla))
+        cambios.push([id, String(t), Math.max(0, Number(n) || 0), "ajuste"]);
     }
   }
+  const stmts = [];
+  for (const [id, talla, nuevo, motivo] of cambios) {
+    const cambio = nuevo - Number(actual[id]?.[talla] ?? 0);
+    if (!cambio) continue;
+    stmts.push(
+      c.env.DB.prepare(
+        `INSERT INTO stock (producto_id, talla, cantidad) VALUES (?, ?, ?)
+         ON CONFLICT (producto_id, talla) DO UPDATE SET cantidad = excluded.cantidad`
+      ).bind(id, talla, nuevo),
+      c.env.DB.prepare(
+        `INSERT INTO stock_mov (producto_id, talla, cambio, motivo, nota) VALUES (?, ?, ?, ?, ?)`
+      ).bind(id, talla, cambio, motivo, String(nota).trim() || null)
+    );
+  }
   if (stmts.length) await c.env.DB.batch(stmts);
-  return c.json({ updated: updates.length });
+  return c.json({ updated: stmts.length / 2 });
+});
+
+admin.get("/stock-mov", async (c) => {
+  await ensureRegistro(c.env);
+  const id = c.req.query("id");
+  const limitRaw = Number(c.req.query("limit"));
+  const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 5000) : 1000;
+  const { results } = await c.env.DB.prepare(
+    `SELECT producto_id, talla, cambio, motivo, nota, pedido_id, created_at AS createdAt
+       FROM stock_mov ${id ? "WHERE producto_id = ?" : ""} ORDER BY id DESC LIMIT ${limit}`
+  )
+    .bind(...(id ? [String(id)] : []))
+    .all();
+  return c.json(results);
 });
 
 app.route("/admin", admin);
@@ -468,6 +514,16 @@ export default {
     const url = new URL(req.url);
     if (url.pathname.startsWith("/api/")) return app.fetch(req, env, ctx);
     if (url.pathname === "/sitemap.xml") return sitemap(url.origin);
+    // Direcciones limpias: /producto/<id> y /autor/<id> sirven producto.html y
+    // autor.html, que leen el id de la dirección. Las de antes (producto.html?id=…,
+    // producto?id=…) llevan a las nuevas, por los enlaces que ya circulan.
+    const ficha = /^\/(producto|autor)\/([^/]+)\/?$/.exec(url.pathname);
+    if (ficha) {
+      return env.ASSETS.fetch(new Request(new URL(`/${ficha[1]}`, url), req)).then((res) => conMeta(res, url));
+    }
+    const vieja = /^\/(producto|autor)(\.html)?$/.exec(url.pathname);
+    const id = url.searchParams.get("id");
+    if (vieja && id) return Response.redirect(`${url.origin}/${vieja[1]}/${encodeURIComponent(id)}`, 301);
     return env.ASSETS.fetch(req).then((res) => conMeta(res, url));
   },
 };

@@ -10,7 +10,8 @@ mountLayout();
 
 const head = document.querySelector("[data-autor]");
 const grid = document.querySelector("[data-obras]");
-const id = new URLSearchParams(location.search).get("id");
+// /autor/<id> (y, por si acaso, el ?id= de antes)
+const id = decodeURIComponent(location.pathname.split("/")[2] || "") || new URLSearchParams(location.search).get("id");
 let autor = null;
 let obras = [];
 

@@ -3,7 +3,7 @@
  *
  * Las páginas las pinta el JS, así que el HTML de public/ llega casi vacío. Antes de
  * servirlo, el Worker le mete en el <head> título, description, canonical y og:* de lo
- * que se está viendo: la ficha de un fanzine (producto?id=…), una autora (autor?id=…) o,
+ * que se está viendo: la ficha de un fanzine (/producto/<id>), una autora (/autor/<id>) o,
  * en el resto, la presentación de la editorial. Todo sale de los mismos JSON del catálogo:
  * un fanzine o una autora nuevos tienen su preview sin tocar este archivo.
  *
@@ -26,8 +26,9 @@ function resumen(texto) {
 const attr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
 function metaDe(url) {
-  const id = url.searchParams.get("id");
-  const ruta = url.pathname.replace(/\.html$/, "");
+  const [, seccion, ficha] = url.pathname.split("/");
+  const id = ficha ? decodeURIComponent(ficha) : url.searchParams.get("id");
+  const ruta = ficha ? `/${seccion}` : url.pathname.replace(/\.html$/, "");
   if (ruta === "/producto" && id) {
     const p = productos.find((x) => x.id === id);
     if (p) {
@@ -36,7 +37,7 @@ function metaDe(url) {
         title: `${titulo} — ${p.autor} · ${SITE}`,
         description: resumen(p.descripcion) || DESCRIPCION,
         image: p.imgs?.[0],
-        canonical: `/producto?id=${encodeURIComponent(id)}`,
+        canonical: `/producto/${encodeURIComponent(id)}`,
       };
     }
   }
@@ -48,7 +49,7 @@ function metaDe(url) {
         title: `${a.nombre} · ${SITE}`,
         description: resumen(a.bio) || `${a.nombre}, autora de ${SITE}.`,
         image: a.foto || obra?.imgs[0],
-        canonical: `/autor?id=${encodeURIComponent(id)}`,
+        canonical: `/autor/${encodeURIComponent(id)}`,
       };
     }
   }
@@ -93,8 +94,8 @@ export function conMeta(res, url) {
 export function sitemap(origin) {
   const urls = [
     ...PAGINAS,
-    ...productos.map((p) => `/producto?id=${encodeURIComponent(p.id)}`),
-    ...autores.map((a) => `/autor?id=${encodeURIComponent(a.id)}`),
+    ...productos.map((p) => `/producto/${encodeURIComponent(p.id)}`),
+    ...autores.map((a) => `/autor/${encodeURIComponent(a.id)}`),
   ];
   const xml =
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +

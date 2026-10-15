@@ -27,7 +27,7 @@ function render() {
         ? `<div class="card-img"><img src="${foto}" alt="${escapeHtml(a.nombre)}" loading="lazy"></div>`
         : `<div class="card-img is-empty">${escapeHtml(a.nombre)}</div>`;
       return `
-        <a class="autor-card" href="autor.html?id=${encodeURIComponent(a.id)}">
+        <a class="autor-card" href="/autor/${encodeURIComponent(a.id)}">
           ${img}
           <em class="autor-nombre">${escapeHtml(a.nombre)}</em>
         </a>`;

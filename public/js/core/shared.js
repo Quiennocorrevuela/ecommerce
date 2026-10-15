@@ -5,17 +5,6 @@
  * (antes estaban copiadas en el servidor y en el front, con riesgo de divergir).
  */
 
-/** stockInicial: número → {_: n}; objeto {talla: n} → normalizado; otro → {}. */
-export function normalizeStockInicial(si) {
-  if (typeof si === "number" && Number.isFinite(si)) return { _: Math.max(0, si) };
-  if (si && typeof si === "object") {
-    const out = {};
-    for (const [k, v] of Object.entries(si)) out[k] = Math.max(0, Number(v) || 0);
-    return out;
-  }
-  return {};
-}
-
 /**
  * Precio de envío de una zona. Soporta dos formatos en envios.json:
  *   - tarifa plana:  { "precio": 4.90 }

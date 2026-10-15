@@ -41,7 +41,7 @@ public/img/
 
 Cada cosa tiene un **`id`**: su nombre en la web, en minúsculas, sin tildes ni
 espacios, con guiones (`la-mort-i-la-primavera`). Es su dirección
-(`/producto?id=la-mort-i-la-primavera`) y el nombre de su carpeta de fotos.
+(`/producto/la-mort-i-la-primavera`) y el nombre de su carpeta de fotos.
 **Una vez publicado, no lo cambies**: los pedidos y el stock van por el `id`.
 
 Los textos van en los tres idiomas: `es`, `ca`, `en`. Si uno se queda vacío
@@ -84,13 +84,14 @@ las fotos dentro, entra en `public/img/productos/` y arrastra la carpeta entera.
 | `imgs` | las fotos, en orden; la primera es la portada y la que sale al compartir | `["img/productos/<id>/1.webp", …]` |
 | `ficha` | la tabla de datos (editorial, encuadernación, páginas, medidas, año, edición) | ver un fanzine existente |
 | `descripcion` | el texto, en `es`, `ca`, `en` | |
-| `stockInicial` | cuántos hay **al publicarlo** (la tirada) | `30` |
 | `activo` | `true` a la venta · `false` próximamente | `true` |
 | `agotado` | opcional: `true` lo marca agotado aunque quede stock | `true` |
 
-> **El stock**: `stockInicial` solo cuenta **la primera vez** que el fanzine
-> sale en la web. Después, el stock baja solo con cada venta y se cambia en
-> `/admin/` → **stock**, no en el JSON.
+> **El stock no va en el JSON.** Un fanzine nuevo sale **agotado** hasta que le
+> pones unidades en `/admin/` → **stock**: en **Añadir**, cuántos llegan (`30`)
+> y, si quieres, una nota ("la tirada"). Después baja solo con cada venta. Si
+> llegan más, se añaden igual; si se rompe uno, `-1`. Cada cambio queda
+> apuntado con su fecha: pulsa el nombre del fanzine para ver su registro.
 
 ## 4. Añadir o cambiar una autora
 

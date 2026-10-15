@@ -1,6 +1,7 @@
 -- schema.sql — esquema D1.
 -- El catálogo vive en data/productos.json; aquí solo guardamos lo mutable:
 --   • stock      → cantidades por (producto, talla), que bajan con cada venta
+--   • stock_mov  → el registro: una línea cada vez que cambia el stock
 --   • pedidos    → historial de compras
 --
 -- Aplica con:  wrangler d1 execute shop --file=./data/schema.sql
@@ -17,6 +18,22 @@ CREATE TABLE IF NOT EXISTS stock (
 );
 
 CREATE INDEX IF NOT EXISTS idx_stock_producto ON stock(producto_id);
+
+-- stock_mov → el registro del stock: una línea cada vez que cambia (lo que entra,
+-- lo que se vende, lo que se corrige). stock es el número de ahora; esto, de dónde
+-- sale. Lo escriben el webhook (ventas) y /admin/stock (entradas y salidas).
+CREATE TABLE IF NOT EXISTS stock_mov (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  producto_id TEXT NOT NULL,
+  talla       TEXT NOT NULL DEFAULT '_',
+  cambio      INTEGER NOT NULL,   -- +20 entran, -1 se vende
+  motivo      TEXT NOT NULL,      -- inicial | entrada | salida | ajuste | venta
+  nota        TEXT,
+  pedido_id   TEXT,
+  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_stock_mov_producto ON stock_mov(producto_id);
 
 CREATE TABLE IF NOT EXISTS pedidos (
   id                 TEXT PRIMARY KEY,

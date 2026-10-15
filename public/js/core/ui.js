@@ -42,7 +42,7 @@ export function productoCardHTML(p) {
     : `<div class="card-img is-empty">${I18N.s("product.soon")}</div>`;
   const soldout = `<span class="soldout"><span class="dot" aria-hidden="true"></span><span class="txt">${I18N.s("product.soldout")}</span></span>`;
   return `
-    <a class="card${p.activo === false ? " is-soon" : ""}${agotado ? " is-agotado" : ""}" href="producto.html?id=${encodeURIComponent(p.id)}">
+    <a class="card${p.activo === false ? " is-soon" : ""}${agotado ? " is-agotado" : ""}" href="/producto/${encodeURIComponent(p.id)}">
       ${img}
       <em class="card-titulo">${tituloHTML(titulo)}</em>
       <div class="card-meta">

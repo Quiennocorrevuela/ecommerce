@@ -22,6 +22,10 @@ createServer(async (req, res) => {
   try {
     let p = decodeURIComponent(req.url.split("?")[0]);
     if (p.endsWith("/")) p += "index.html";
+    // las mismas direcciones limpias que el Worker: /producto/<id>, /autor/<id>, /about
+    const ficha = /^\/(producto|autor)\/[^/]+$/.exec(p);
+    if (ficha) p = `/${ficha[1]}.html`;
+    else if (!extname(p)) p += ".html";
     const file = join(ROOT, normalize(p).replace(/^(\.\.[/\\])+/, ""));
     const body = await readFile(file);
     res.writeHead(200, { "Content-Type": TYPES[extname(file)] || "application/octet-stream" });

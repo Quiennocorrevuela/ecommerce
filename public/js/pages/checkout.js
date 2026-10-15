@@ -25,7 +25,7 @@ function render() {
 
   if (!cart.length) {
     listEl.innerHTML = `<p class="estado">${I18N.s("cart.empty")}</p>`;
-    resumenEl.innerHTML = `<p><a href="index.html">← ${I18N.s("cart.continue")}</a></p>`;
+    resumenEl.innerHTML = `<p><a href="/">← ${I18N.s("cart.continue")}</a></p>`;
     return;
   }
 
@@ -68,7 +68,7 @@ function render() {
     <div class="fila"><span>${I18N.s("cart.shipping")}</span><span>${formatPrice(envio)}</span></div>
     <div class="fila total"><span>${I18N.s("cart.total")}</span><span>${formatPrice(total)}</span></div>
     <button class="btn-pagar" data-pagar>${I18N.s("cart.pay")}</button>
-    <p style="margin-top:1rem"><a href="index.html">← ${I18N.s("cart.continue")}</a></p>`;
+    <p style="margin-top:1rem"><a href="/">← ${I18N.s("cart.continue")}</a></p>`;
 
   resumenEl.querySelector("[data-zona]").addEventListener("change", (e) => { zonaSel = e.target.value; render(); });
   resumenEl.querySelector("[data-pagar]").addEventListener("click", pagar);
