@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data/about.json: el texto de «nosotras»",
+  "description": "data/about.json: el texto de «nosotras», en cada idioma, como lista de párrafos. El primero sale más grande. Este fichero lo lee VS Code para explicar cada campo y subrayar lo que está mal; el build y la vista previa comprueban con él mismo.",
+  "type": "object",
+  "required": ["es"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "_": { "type": "string", "description": "Una nota para quien edita. No sale en la web." },
+    "es": { "type": "array", "items": { "type": "string" }, "description": "los párrafos en castellano: [\"primero\", \"segundo\"]" },
+    "ca": { "type": "array", "items": { "type": "string" }, "description": "los párrafos en catalán" },
+    "en": { "type": "array", "items": { "type": "string" }, "description": "los párrafos en inglés" }
+  }
+}

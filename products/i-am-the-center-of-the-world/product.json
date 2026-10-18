@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schema/product.json",
   "title": "I am the center of the world",
   "author": "Mia Sala-Patau",
   "authorId": "mia-sala-patau",

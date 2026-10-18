@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data/events.json: el calendario",
+  "description": "data/events.json: las ferias y los eventos del calendario, uno por bloque { … }, en cualquier orden (la web los ordena por fecha). El cartel de cada uno, data/events/<id>.webp. VS Code lo lee por .vscode/settings.json (una lista no puede llevar \"$schema\"); el build y la vista previa comprueban con él mismo.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "title", "start"],
+    "additionalProperties": false,
+    "properties": {
+      "_": { "type": "string", "description": "Una nota para quien edita. No sale en la web." },
+      "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "en minúsculas y con guiones: es el nombre de su cartel, data/events/<id>.webp" },
+      "title": { "type": "string", "description": "el nombre del evento" },
+      "place": { "type": "string", "description": "dónde: \"La Casa Encendida, Madrid\"" },
+      "type": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object", "additionalProperties": false, "properties": { "es": { "type": "string" }, "ca": { "type": "string" }, "en": { "type": "string" } } }
+        ],
+        "description": "qué es, en cada idioma: { \"es\": \"feria de fotolibros\", … }"
+      },
+      "start": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "el primer día, año-mes-día: \"2026-09-18\"" },
+      "end": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "el último día, año-mes-día; si es un solo día, sin «end»" }
+    }
+  }
+}

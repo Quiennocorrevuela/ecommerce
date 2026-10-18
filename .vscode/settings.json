@@ -1,0 +1,5 @@
+{
+  "json.schemas": [
+    { "fileMatch": ["data/events.json"], "url": "./schema/events.json" }
+  ]
+}

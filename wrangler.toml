@@ -8,7 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 # publicar (y en `wrangler dev`), así que en Workers Builds cada push publica solo.
 [build]
 command = "node build/build.mjs"
-watch_dir = ["build", "data", "products", "authors", "pages", "public"]
+watch_dir = ["build", "data", "products", "authors", "pages", "public", "schema"]
 
 [assets]
 directory = "./dist"

@@ -10,7 +10,8 @@
  *
  * Firma el webhook de Stripe de verdad (HMAC con el mismo secreto) y comprueba
  * que una venta baja el stock y queda apuntada, y que un webhook repetido no
- * descuenta dos veces. Y que la trampa para bots de los formularios funciona.
+ * descuenta dos veces. Y que la trampa para bots de los formularios funciona, el
+ * número de seguimiento de un pedido y la newsletter (CSV y baja).
  */
 import { createHmac } from "node:crypto";
 
@@ -102,6 +103,33 @@ comprobar("y el de una persona sí", lista.includes(`persona${marca}@`));
 await enviar("contacto", { texto: `spam ${marca}`, web: "x" });
 const mensajes = JSON.stringify(await (await fetch(`${BASE}/admin/mensajes`, { headers: AUTH })).json());
 comprobar("ni su mensaje de contacto", !mensajes.includes(`spam ${marca}`));
+
+console.log("seguimiento");
+const ponEstado = (body) => fetch(`${BASE}/admin/pedido-estado`, {
+  method: "POST", headers: AUTH, body: JSON.stringify({ id: pedido.id, ...body }) });
+const elPedido = async () =>
+  (await (await fetch(`${BASE}/admin/historial?limit=500`, { headers: AUTH })).json()).find((x) => x.id === pedido.id);
+await ponEstado({ estado: "enviado", seguimiento: " PK123ES " });
+let pe = await elPedido();
+comprobar("se guarda con el estado, sin espacios", pe.estado === "enviado" && pe.seguimiento === "PK123ES", pe);
+await ponEstado({ estado: "entregado" });
+comprobar("sin seguimiento en el cuerpo, se queda el que había", (await elPedido()).seguimiento === "PK123ES");
+await ponEstado({ estado: "entregado", seguimiento: "" });
+comprobar("vacío lo borra", (await elPedido()).seguimiento === null);
+comprobar("un pedido que no existe → 404",
+  (await fetch(`${BASE}/admin/pedido-estado`, { method: "POST", headers: AUTH,
+    body: JSON.stringify({ id: "ord_no", estado: "enviado" }) })).status === 404);
+
+console.log("newsletter: CSV y baja");
+const mail = `baja+${marca}@prueba.cat`;
+await enviar("newsletter", { email: mail.toUpperCase(), web: "" });
+const csv = async () => (await fetch(`${BASE}/admin/newsletter.csv`, { headers: AUTH })).text();
+const texto = await csv();
+comprobar("el CSV lleva la cabecera y el email", texto.startsWith("email,alta\n") && texto.includes(`"${mail}"`), texto.slice(0, 200));
+const baja = () => fetch(`${BASE}/admin/newsletter/${encodeURIComponent(mail)}`, { method: "DELETE", headers: AUTH });
+comprobar("dar de baja (con un + en el email) → 200", (await baja()).ok);
+comprobar("ya no sale en el CSV", !(await csv()).includes(mail));
+comprobar("darlo de baja otra vez → 404", (await baja()).status === 404);
 
 console.log(ko ? `\n✗ ${ko} fallo(s) de ${ok + ko}` : `\n✓ ${ok} comprobaciones, 0 fallos`);
 process.exit(ko ? 1 : 0);

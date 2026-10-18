@@ -10,11 +10,32 @@
    ============================================================ */
 import { STRINGS, LABELS } from "../public/js/core/i18n.js";
 import { escapeHtml as esc, formatPrice } from "../public/js/core/data.js";
+import { entradas } from "./validar.mjs";
 
 const LOCALE = { es: "es-ES", ca: "ca-ES", en: "en-GB" };
 const OG_LOCALE = { es: "es_ES", ca: "ca_ES", en: "en_GB" };
 
-export function crearSitio({ site, about, products, authors, events, fijas, existe }) {
+/* La transición de la casa (JAMstack, patrones §6c; js/transicion.js): este <script>, inline y
+   antes de pintar, tapa la página si se llega de otra de la web (o con atrás). En la vista
+   previa la página ya se ha revelado: window.revelada no espera a nada. */
+const headScript = (preview) => `<script>{
+const html = document.documentElement;
+html.classList.add('js');
+let back = false;
+try {
+  const d = JSON.parse(sessionStorage.getItem('transicion'));
+  back = !d && performance.getEntriesByType('navigation')[0]?.type === 'back_forward';
+  if (d?.carga) html.style.setProperty('--carga', d.carga);   // el color del loader, del dibujo
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && (back || d)) html.classList.add('tapada');
+} catch {}
+window.revelada = ${preview ? "false" : "'onpagereveal' in window"} ? new Promise((done) => addEventListener('pagereveal', (e) => {
+  const vt = e.viewTransition;
+  if (vt && back && html.classList.contains('tapada')) { html.classList.add('tapando'); done(vt); }
+  else { vt?.ready.catch(() => {}); vt?.skipTransition(); done(null); }   // saltarla rechaza ready: sin error en la consola
+}, { once: true })) : Promise.resolve(null);
+}</script>`;
+
+export function crearSitio({ site, about, products, authors, events, fijas, existe, og = () => null, preview = false }) {
   const LANGS = site.langs;
   const DEF = site.lang;
   const SITE = site.title;
@@ -38,17 +59,20 @@ export function crearSitio({ site, about, products, authors, events, fijas, exis
     return p.length <= 160 ? p : p.slice(0, 157).replace(/\s+\S*$/, "") + "…";
   };
 
-  const listaDe = (n) => site.lists?.[n]?.projects || [];
-  const tienda = listaDe("shop").map((id) => products.find((p) => p.id === id)).filter(Boolean);
-  const autoras = listaDe("authors").map((id) => authors.find((a) => a.id === id)).filter(Boolean);
-  const conPagina = (id) => autoras.some((a) => a.id === id);
+  /* Lo que está en las listas, en su orden. Uno oculto ({ "product": "x", "visible": false })
+     tiene su página, con noindex, pero no sale en la tienda, ni con su autora, ni en el sitemap. */
+  const deLista = (n, dir, todos) => entradas(site, n, dir)
+    .map((e) => { const x = todos.find((y) => y.id === e.id); return x && { ...x, oculto: !e.visible }; }).filter(Boolean);
+  const tienda = deLista("shop", "products", products);
+  const autoras = deLista("authors", "authors", authors);
+  const conPagina = (id) => autoras.some((a) => a.id === id && !a.oculto);
 
   const foto = (p, n) => `/products/${p.id}/img/${n}.webp`;
   const fotos = (p) => (p.photos || []).map((n) => foto(p, n));
   const retrato = (a) => {
     const propio = `/authors/${a.id}/img/1.webp`;
     if (existe(propio)) return propio;
-    const obra = tienda.find((p) => p.authorId === a.id && p.photos?.length);
+    const obra = tienda.find((p) => p.authorId === a.id && !p.oculto && p.photos?.length);
     return obra ? foto(obra, obra.photos[0]) : "";
   };
   const cartel = (ev) => (existe(`/data/events/${ev.id}.webp`) ? `/data/events/${ev.id}.webp` : "");
@@ -114,12 +138,15 @@ export function crearSitio({ site, about, products, authors, events, fijas, exis
 
   function pagina({ l, path, title, desc, image, js, main, pie = "", noindex = false }) {
     const alts = LANGS.map((x) => `<link rel="alternate" hreflang="${x}" href="${abs(url(x, path))}" />`).join("\n    ");
-    const og = abs(image || "/img/logo.webp");
+    // og(foto) da la de 1200×630 que hace build.mjs; si no la hay, se comparte la foto tal cual.
+    const foto = image || "/img/logo.webp";
+    const ogImg = og(foto);
     return `<!doctype html>
 <html lang="${l}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    ${headScript(preview)}
     <title>${esc(title)}</title>
     <meta name="description" content="${esc(desc)}" />
     ${noindex ? '<meta name="robots" content="noindex" />' : `<link rel="canonical" href="${abs(url(l, path))}" />
@@ -131,9 +158,13 @@ export function crearSitio({ site, about, products, authors, events, fijas, exis
     <meta property="og:url" content="${abs(url(l, path))}" />
     <meta property="og:title" content="${esc(title)}" />
     <meta property="og:description" content="${esc(desc)}" />
-    <meta property="og:image" content="${og}" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image" content="${abs(ogImg || foto)}" />
+    ${ogImg ? `<meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    ` : ""}<meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="/css/transicion.css" />
     <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/transicion.js" defer></script>
     <script type="module" src="/js/pages/${js}.js"></script>
   </head>
   <body>
@@ -155,7 +186,7 @@ ${main.html}
   /* ---------- páginas con datos ---------- */
   const home = (l) => pagina({
     l, path: "", js: "home", title: SITE, desc: descSitio(l),
-    main: { html: `      <section class="tienda-grid" data-productos>${tienda.filter((p) => !p.comingSoon).map((p) => card(p, l)).join("")}</section>` },
+    main: { html: `      <section class="tienda-grid" data-productos>${tienda.filter((p) => !p.comingSoon && !p.oculto).map((p) => card(p, l)).join("")}</section>` },
   });
 
   function producto(p, l) {
@@ -206,7 +237,7 @@ ${main.html}
     return pagina({
       l, path: `producto/${p.id}/`, js: "producto",
       title: `${nombre(p)} — ${p.author} · ${SITE}`,
-      desc: resumen(texto[0]) || descSitio(l), image: imgs[0],
+      desc: resumen(texto[0]) || descSitio(l), image: imgs[0], noindex: p.oculto,
       main: { html: `      <article class="producto" data-producto data-id="${esc(p.id)}">${galeria + info}</article>` },
     });
   }
@@ -214,10 +245,10 @@ ${main.html}
   function autora(a, l) {
     const f = retrato(a);
     const bio = parrafos(a.bio, l);
-    const obras = tienda.filter((p) => p.authorId === a.id);
+    const obras = tienda.filter((p) => p.authorId === a.id && !p.oculto);
     return pagina({
       l, path: `autor/${a.id}/`, js: "autor",
-      title: `${a.name} · ${SITE}`, desc: resumen(bio[0]) || `${a.name}, ${SITE}.`, image: f,
+      title: `${a.name} · ${SITE}`, desc: resumen(bio[0]) || `${a.name}, ${SITE}.`, image: f, noindex: a.oculto,
       main: { html: `      <section class="pagina-info" data-autor>
     <div class="info-foto">${f ? `<img src="${f}" alt="${esc(a.name)}">` : ""}</div>
     <div class="info-texto">
@@ -230,7 +261,7 @@ ${main.html}
 
   const autoresPagina = (l) => pagina({
     l, path: "autores/", js: "autores", title: titulo("nav.autoras", l), desc: descSitio(l),
-    main: { html: `      <section class="autores-grid" data-autores>${autoras.map((a) => {
+    main: { html: `      <section class="autores-grid" data-autores>${autoras.filter((a) => !a.oculto).map((a) => {
       const f = retrato(a);
       const img = f
         ? `<div class="card-img"><img src="${f}" alt="${esc(a.name)}" loading="lazy"></div>`
@@ -340,8 +371,8 @@ ${main.html}
       r.push({ ruta: url(l, "about/"), pintar: () => aboutPagina(l) });
       r.push({ ruta: url(l, "autores/"), pintar: () => autoresPagina(l) });
       r.push({ ruta: url(l, "calendario/"), pintar: () => calendario(l) });
-      for (const p of tienda) r.push({ ruta: url(l, `producto/${p.id}/`), pintar: () => producto(p, l) });
-      for (const a of autoras) r.push({ ruta: url(l, `autor/${a.id}/`), pintar: () => autora(a, l) });
+      for (const p of tienda) r.push({ ruta: url(l, `producto/${p.id}/`), pintar: () => producto(p, l), privada: p.oculto });
+      for (const a of autoras) r.push({ ruta: url(l, `autor/${a.id}/`), pintar: () => autora(a, l), privada: a.oculto });
       for (const [n, html] of Object.entries(fijas)) {
         r.push({ ruta: url(l, `${n}/`), pintar: () => fija(n, html, l), privada: ["checkout", "gracias", "sorry"].includes(n) });
       }
@@ -349,5 +380,13 @@ ${main.html}
     return r;
   }
 
-  return { rutas, noEncontrada, tienda, autoras, abs };
+  /** El catálogo para el Worker (precios y pesos de verdad al pagar) y para el carrito:
+      dist/data/products.json (la vista previa lo da sin escribirlo). */
+  const catalogo = () => tienda.map((p) => ({
+    id: p.id, title: p.title, author: p.author, authorId: p.authorId, price: p.price, weight: p.weight,
+    photos: fotos(p),
+    ...(p.soldOut ? { soldOut: true } : {}), ...(p.comingSoon ? { comingSoon: true } : {}),
+  }));
+
+  return { rutas, noEncontrada, catalogo, tienda, autoras, abs };
 }

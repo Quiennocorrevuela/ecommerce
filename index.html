@@ -1,0 +1,35 @@
+<!doctype html>
+<!--
+  VISTA PREVIA
+  Este fichero no se publica: la tienda de verdad la escribe build/build.mjs
+  en Cloudflare. Esto es para ver los cambios antes de subirlos, con la
+  extensión Live Server de VS Code ("Go Live", abajo a la derecha).
+  Lee los JSON y pinta la página con las mismas plantillas que el build.
+-->
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>vista previa — Quien no corre, vuela</title>
+  <style>
+    body{margin:0;padding:clamp(24px,6vw,80px);font:16px/1.5 Helvetica,Arial,sans-serif;background:#fafafa;color:#7d7d7d}
+    p{max-width:62ch}
+  </style>
+  <script>
+    // el idioma de la página pedida (?p=/ca/…), antes de que el JS de la tienda lo lea
+    document.documentElement.lang = (/^\/(ca|en)\//.exec(new URLSearchParams(location.search).get('p') || '') || [])[1] || 'es';
+  </script>
+</head>
+<body>
+  <p id="aviso">cargando la vista previa…</p>
+  <script>
+    // Abierto con doble clic desde el Finder, el navegador no deja leer los
+    // JSON ni cargar los módulos: hace falta un servidor, y ese es Live Server.
+    if (location.protocol === 'file:') document.getElementById('aviso').innerHTML =
+      'Esta página hay que abrirla con <b>Live Server</b>: en VS Code, botón ' +
+      '<b>Go Live</b> abajo a la derecha. Abierta con doble clic no puede leer los datos.';
+  </script>
+  <script type="module" src="build/preview.mjs"></script>
+</body>
+</html>

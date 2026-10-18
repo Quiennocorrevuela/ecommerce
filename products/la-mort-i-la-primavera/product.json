@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schema/product.json",
   "title": "La mort i la primavera",
   "author": "Sofia Milena",
   "authorId": "sofia-milena",

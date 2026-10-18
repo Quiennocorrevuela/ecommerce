@@ -228,10 +228,12 @@ Verlo en /admin/mensajes.html`;
 export function notifPedidoEnviado(env, pedido) {
   if (!pedido.email) return Promise.resolve(false);
   const tienda = env.TIENDA_NOMBRE || "la tienda";
+  // El número de seguimiento va justo debajo de la referencia: es lo que se busca al abrirlo.
+  const seguimiento = pedido.seguimiento ? `\nNúmero de seguimiento: ${pedido.seguimiento}\n` : "";
   const texto = `Tu pedido ya está en camino.
 
 Referencia: ${pedido.id}
-
+${seguimiento}
 ${lineasPedido(pedido)}${bloqueEnvio(pedido.envio)}
 
 Gracias por comprar en ${tienda}.`;

@@ -1,0 +1,557 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #ffffff;
+  --card: #ffffff;
+  --text: #000000;
+  --text-muted: #999999;
+  --border: rgba(0, 0, 0, 0.12);
+  --border-hover: rgba(0, 0, 0, 0.35);
+  --success: #059669;
+  --error: #dc2626;
+  --radius: 4px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  font-family: 'Inknut Antiqua', Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  letter-spacing: 0.03em;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Upload Area */
+.upload-area {
+  background: var(--card);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 3rem 2rem;
+  text-align: center;
+  margin: 2rem 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: var(--border-hover);
+}
+
+.upload-area.drag-over {
+  border-color: var(--text);
+  border-style: solid;
+}
+
+.upload-icon {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.upload-area h3 {
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.upload-area p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  font-size: 0.7rem;
+}
+
+/* Buttons */
+.btn-primary {
+  padding: 0.6rem 1.4rem;
+  background: var(--text);
+  color: var(--bg);
+  border: 1px solid var(--text);
+  border-radius: var(--radius);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #333;
+  border-color: #333;
+}
+
+.btn-secondary {
+  padding: 0.5rem 1.2rem;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.65rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--border-hover);
+}
+
+.btn-download {
+  padding: 0.4rem 0.9rem;
+  background: var(--text);
+  color: var(--bg);
+  border: 1px solid var(--text);
+  border-radius: var(--radius);
+  font-size: 0.6rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.btn-download:hover {
+  background: #333;
+  border-color: #333;
+}
+
+.btn-remove {
+  padding: 0.4rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-remove:hover {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+/* Quality Select */
+.quality-select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--card);
+  cursor: pointer;
+  letter-spacing: 0.03em;
+}
+
+.quality-select:focus {
+  outline: none;
+  border-color: var(--border-hover);
+}
+
+/* Rename Toggle */
+.rename-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.rename-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--text);
+  cursor: pointer;
+}
+
+/* Progress Bar */
+.progress-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0 2rem;
+  box-shadow: var(--shadow);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.progress-info span:last-child {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--text);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Images Grid */
+.images-grid {
+  margin: 2rem 0;
+}
+
+.grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.grid-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.grid-header h3 {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.images-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Image Card */
+.image-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.image-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.image-preview {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-info {
+  padding: 0.85rem;
+}
+
+.image-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.image-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+}
+
+.stat-label {
+  color: var(--text-muted);
+}
+
+.stat-value {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.stat-savings {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.stat-negative {
+  color: var(--error);
+  font-weight: 600;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Notifications */
+.notification {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 1rem;
+  box-shadow: var(--shadow-hover);
+  max-width: 360px;
+  font-size: 0.65rem;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+  opacity: 0;
+  transform: translateY(0.5rem);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification-success {
+  border-left: 3px solid var(--success);
+}
+
+.notification-error {
+  border-left: 3px solid var(--error);
+}
+
+.notification-info {
+  border-left: 3px solid var(--text);
+}
+
+/* Mode Switch Button */
+.mode-switch {
+  display: block;
+  margin: 0.75rem auto 0;
+  text-align: center;
+}
+
+.rename-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rename-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.65rem;
+  transition: border-color 0.2s ease;
+}
+
+.rename-row:hover {
+  border-color: var(--border-hover);
+}
+
+.rename-original {
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.rename-arrow {
+  color: var(--text-muted);
+  margin: 0 0.5rem;
+  flex-shrink: 0;
+}
+
+.rename-new {
+  color: var(--text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Branding */
+.branding-badge {
+  margin-top: auto;
+  text-align: center;
+  font-size: 0.65rem;
+  padding: 2rem 0 1.5rem;
+}
+
+.branding-badge a {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  letter-spacing: 0.05em;
+}
+
+.branding-badge a:hover {
+  color: var(--text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .upload-area {
+    padding: 2rem 1rem;
+  }
+
+  .images-list {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .grid-header-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .notification {
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+}
+
+/* ============================================================ */
+/* Drag & drop para reordenar (SortableJS)                      */
+/* ============================================================ */
+.image-card,
+.rename-row {
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+.image-card:active,
+.rename-row:active {
+  cursor: grabbing;
+}
+
+/* placeholder (hueco) donde caerá el elemento */
+.card-ghost {
+  opacity: 0.4;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* el item seleccionado (mientras se mantiene el clic) */
+.card-chosen {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--border-hover);
+}
+
+/* el clon visible que sigue al cursor durante el drag */
+.card-dragging {
+  opacity: 0.9;
+  cursor: grabbing;
+}
+
+/* ============================================================ */
+/* Aviso "mejor en escritorio" — sólo visible en móvil          */
+/* ============================================================ */
+/* Oculto por defecto (escritorio). Se muestra dentro de la media query de
+   móvil más abajo. Así no estorba en el caso de uso principal. */
+.mobile-notice { display: none; }
+
+@media (max-width: 768px) {
+  .mobile-notice {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #fff7e6;
+    color: #5c4a12;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+  .mobile-notice-close {
+    margin-left: auto;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+  }
+  .mobile-notice-close:hover { opacity: 1; }
+}
+

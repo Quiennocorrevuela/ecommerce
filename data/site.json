@@ -1,5 +1,6 @@
 {
-  "_": "Lo general de la tienda. «lists»: qué fanzines salen en la tienda y qué autoras en autoras, en este orden (cada nombre es una carpeta de products/ o de authors/); lo que no está en ninguna lista no sale en la web. «description»: la que sale en Google y al compartir la portada.",
+  "$schema": "../schema/site.json",
+  "_": "Lo general de la tienda. «lists»: qué fanzines salen en la tienda y qué autoras en autoras, en este orden (cada nombre es una carpeta: «products», de products/; «authors», de authors/); lo que no está en ninguna lista no sale en la web. «description»: la que sale en Google y al compartir la portada.",
   "title": "Quien no corre, vuela",
   "url": "https://quiennocorrevuela.com",
   "lang": "es",
@@ -12,7 +13,7 @@
   "lists": {
     "shop": {
       "name": {"es": "tienda", "ca": "botiga", "en": "shop"},
-      "projects": [
+      "products": [
         "la-mort-i-la-primavera",
         "archivo-en-pixel",
         "pont-neuf",
@@ -23,7 +24,7 @@
     },
     "authors": {
       "name": {"es": "autoras", "ca": "autores", "en": "authors"},
-      "projects": ["mia-sala-patau"]
+      "authors": ["mia-sala-patau"]
     }
   }
 }

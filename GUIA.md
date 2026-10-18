@@ -27,9 +27,15 @@ arreglas (punto 7).
 
 Desde ahí, la tienda es esa carpeta: cada vez que abras VS Code, se abre allí.
 
+3. Instala **Live Server**, para ver los cambios antes de subirlos: a la
+   izquierda, el icono de los cuadraditos (**Extensions**), busca `Live Server`
+   (la de Ritwick Dey) → **Install**. Abajo a la derecha sale **Go Live**.
+
 Para preparar las fotos, **imgToWeb**: https://meowrhino.github.io/imgToWeb/
 (las pasa a `.webp`, del tamaño justo, y las numera `1.webp`, `2.webp`…).
 **Ábrelo en Chrome o Firefox**, no en Safari: Safari no sabe hacer `.webp`.
+Si un día no está, hay una copia en la tienda: `tools/imgToWeb/index.html`
+(ábrelo con Go Live y entra en `/tools/imgToWeb/`).
 
 ---
 
@@ -71,15 +77,20 @@ sale el castellano. Los textos largos son una lista de párrafos:
    (**Sync**).
 2. A la izquierda, abre el archivo (por ejemplo `products/pont-neuf/product.json`)
    y cambia lo que haga falta. Guarda con **Cmd+S**. Si algo sale **subrayado
-   en rojo**, hay una coma o unas comillas mal (punto 7).
-3. A la izquierda, el icono de las ramas (**Source Control**): escribe en una
+   en rojo**, hay una coma o unas comillas mal, o un campo mal escrito (punto
+   7). Con el ratón encima de un campo, VS Code te dice qué es.
+3. **Míralo antes de subirlo**: **Go Live**, abajo a la derecha, abre la tienda
+   en el navegador, y cada vez que guardas se recarga sola. Si algo está mal,
+   en vez de la tienda sale **qué y dónde**, en rojo. Aquí no hay panel: los
+   fanzines salen todos disponibles y no se puede pagar.
+4. A la izquierda, el icono de las ramas (**Source Control**): escribe en una
    línea qué has cambiado ("precio de pont neuf") y pulsa **Commit**.
-4. Pulsa **Sync Changes** (el mismo botón azul).
+5. Pulsa **Sync Changes** (el mismo botón azul).
 
 Ya está: en 1 o 2 minutos sale en la web.
 
 **Para añadir fotos**: arrástralas a su carpeta `img/` en la columna de la
-izquierda de VS Code, y después los pasos 3 y 4.
+izquierda de VS Code, y después los pasos 4 y 5.
 
 ---
 
@@ -90,13 +101,21 @@ izquierda de VS Code, y después los pasos 3 y 4.
 2. **Las fotos**: vacía su `img/` y mete las nuevas, pasadas por imgToWeb, que
    ya salen numeradas. La `1.webp` es la portada.
 3. **Cambia los datos** de su `product.json` (la tabla de abajo).
-4. **Ponlo en la tienda**: en `data/site.json`, añade su nombre a la lista de
-   `"shop"`, donde quieras que salga: el primero de la lista es el primero de
+4. **Ponlo en la tienda**: en `data/site.json`, añade su nombre a
+   `"products"`, dentro de `"shop"`, donde quieras que salga: el primero de la lista es el primero de
    la tienda.
 5. **Ponle unidades** en el panel (punto 6). Hasta entonces sale **agotado**.
 
+**Para esconder un fanzine** sin borrarlo (porque aún no está, o para mandar
+su página a alguien antes de anunciarlo): en la lista de `data/site.json`,
+cambia `"pont-neuf"` por `{ "product": "pont-neuf", "visible": false }`. Su
+página sigue en su dirección, pero no sale en la tienda, ni con su autora, ni
+en Google. Para que vuelva, otra vez `"pont-neuf"`: no pierde su sitio. Con
+una autora, igual: `{ "author": "mia-sala-patau", "visible": false }`.
+
 ```json
 {
+  "$schema": "../../schema/product.json",
   "title": ["No time left", "for the square"],
   "author": "Andrea Carilla",
   "authorId": "andrea-carilla",
@@ -168,9 +187,13 @@ En **`quiennocorrevuela.com/admin/`**, con tu clave:
   uno regalado), en negativo: `-1`. Cada cambio queda apuntado con su fecha:
   pulsa el nombre de un fanzine para ver su registro.
 - **pedidos**: con su dirección y su estado (pendiente → enviado → entregado).
+  Escribe el **número de seguimiento** antes de pasarlo a «enviado»: así le llega
+  en el correo a quien compró.
   Si uno sale como **revisar**, es que se vendió algo que ya no quedaba (dos
   personas a la vez): mira si lo tienes o escribe a quien compró.
-- **newsletter** y **mensajes**: las altas y lo que os escriben desde «contacto».
+- **newsletter**: las altas. **Descargar CSV** te da la lista para el programa
+  con el que mandéis los correos, y **Dar de baja** quita a quien lo pida.
+- **mensajes**: lo que os escriben desde «contacto».
 
 ---
 
@@ -180,10 +203,17 @@ En **`quiennocorrevuela.com/admin/`**, con tu clave:
 del último, no. Entre dos campos, coma; después del último campo de un bloque,
 no. Y los textos, siempre entre comillas `"…"`. VS Code lo subraya en rojo.
 
-Si subes algo con un error, **la web no se rompe**: no se publica y se queda
-como estaba. Si al cabo de unos minutos tu cambio no sale, es eso: en el panel
-de Cloudflare (Workers → quien-no-corre-vuela → Deployments) sale en rojo, con
-qué falta y dónde, en castellano. Por ejemplo:
+Antes de subirlo, **Go Live** te lo dice (punto 2): en vez de la tienda sale
+qué falta y dónde. Si aun así subes algo con un error, **la web no se rompe**:
+no se publica y se queda como estaba. Lo verás en tres sitios:
+
+- En GitHub, al lado de tu último cambio, una **bolita**: verde, publicado;
+  roja, no.
+- En tu repo de GitHub, un aviso (**Issues**) que se llama «La tienda no se ha
+  publicado», con el error dentro. Se cierra solo cuando lo arreglas.
+- En el panel de Cloudflare (Workers → quien-no-corre-vuela → Deployments).
+
+El error sale en castellano, con qué falta y dónde. Por ejemplo:
 
 ```
 ✗ products/pont-neuf: "photos" dice "7", pero no hay ningún img/7.webp

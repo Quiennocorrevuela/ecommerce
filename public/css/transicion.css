@@ -1,0 +1,75 @@
+/* La transición entre páginas, la de la casa (JAMstack, patrones.md
+   §6c): este archivo y js/transicion.js son iguales en todas las webs.
+   Lo que se ve lo pone cada una en su CSS, que va después de este: el
+   dibujo (en un elemento .veil) y la forma del loader.
+
+   Una página a la que se llega desde otra nace tapada (.tapada, del
+   <head>) hasta que el script la destapa; si no llegara, a los 5 s se
+   destapa sola. */
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tapada body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  background: var(--bg, #fff);
+  animation: destapar 0s 5s forwards;
+}
+
+@keyframes destapar { to { visibility: hidden; } }
+
+/* El loader. Mientras se espera en blanco —la página vieja ya tapada
+   (.cargando) esperando a la nueva, o la nueva (.tapada) esperando sus
+   fotos—, si pasa de medio segundo, en el centro. Con buena conexión no
+   llega a salir. Su color, --carga (del dibujo); su forma, la de cada
+   web: el tamaño, el fondo o una máscara en el mismo selector, y su
+   animación en --carga-anim. Si no, un cuadrado que late. */
+.tapada body::after,
+.cargando body::after {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 11;
+  width: 12px;
+  height: 12px;
+  translate: -50% -50%;
+  background: var(--carga, currentColor);
+  animation: aparecer 0s .5s both, var(--carga-anim, latir 1s steps(2) .5s infinite);
+}
+
+/* si el script no llega, se va con el blanco, a los 5 s */
+.tapada:not(.cargando) body::after {
+  animation: aparecer 0s .5s both, var(--carga-anim, latir 1s steps(2) .5s infinite), destapar 0s 5s forwards;
+}
+
+.tapando body::after { content: none; }
+
+@keyframes aparecer { from { visibility: hidden; } }
+@keyframes latir { 50% { opacity: .3; } }
+
+/* Con atrás y adelante no se puede tapar antes de irse. El navegador
+   guarda una foto de la página de antes y la deja quieta debajo; la
+   página nueva, transparente salvo el dibujo (.tapando), la tapa; luego
+   la foto se quita (js/transicion.js). */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: quieta 10s; }
+::view-transition-new(root) { animation: none; }
+@keyframes quieta { to { opacity: 1; } }
+
+/* (si el script no llegara, a los 10 s se ve igual) */
+.tapando,
+.tapando body { background: transparent; }
+.tapando body > :not(.veil) { visibility: hidden; animation: asomar 0s 10s forwards; }
+.tapando body::before { visibility: hidden; }
+
+@keyframes asomar { to { visibility: visible; } }

@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schema/product.json",
   "title": ["Pont Neuf", "Diario de Laboratorio I"],
   "author": "Sofia Milena",
   "authorId": "sofia-milena",

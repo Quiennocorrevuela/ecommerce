@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data/site.json: lo general de la tienda",
+  "description": "data/site.json: lo general de la tienda y las listas (qué fanzines y qué autoras salen, y en qué orden). Este fichero lo lee VS Code (por el \"$schema\" de arriba del JSON) para explicar cada campo y subrayar lo que está mal; el build y la vista previa comprueban con él mismo.",
+  "type": "object",
+  "required": ["title", "url", "lang", "langs", "lists"],
+  "additionalProperties": false,
+  "$defs": {
+    "idiomas": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "es": { "type": "string" }, "ca": { "type": "string" }, "en": { "type": "string" } },
+      "description": "en cada idioma: { \"es\": \"…\", \"ca\": \"…\", \"en\": \"…\" }"
+    },
+    "nombre": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "el nombre de una carpeta, en minúsculas y con guiones" }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "_": { "type": "string", "description": "Una nota para quien edita. No sale en la web." },
+    "title": { "type": "string", "description": "el nombre de la tienda: sale en Google, al compartir y detrás del título de cada página" },
+    "url": { "type": "string", "pattern": "^https://[^/]+$", "description": "el dominio, sin barra al final: \"https://quiennocorrevuela.com\"" },
+    "lang": { "enum": ["es", "ca", "en"], "description": "el idioma de la raíz; los otros van en /ca/ y /en/" },
+    "langs": { "type": "array", "items": { "enum": ["es", "ca", "en"] }, "description": "los idiomas de la tienda" },
+    "description": { "$ref": "#/$defs/idiomas", "description": "la frase que sale en Google y al compartir la portada, en cada idioma" },
+    "lists": {
+      "type": "object",
+      "required": ["shop", "authors"],
+      "additionalProperties": false,
+      "properties": {
+        "shop": {
+          "type": "object",
+          "required": ["products"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "$ref": "#/$defs/idiomas" },
+            "products": {
+              "type": "array",
+              "description": "los fanzines de la tienda, en orden: el nombre de su carpeta de products/. Uno oculto (con su página para mandarla, pero fuera de la tienda y de Google): { \"product\": \"nombre\", \"visible\": false }",
+              "items": {
+                "anyOf": [
+                  { "$ref": "#/$defs/nombre" },
+                  {
+                    "type": "object",
+                    "required": ["product", "visible"],
+                    "additionalProperties": false,
+                    "properties": { "product": { "$ref": "#/$defs/nombre" }, "visible": { "type": "boolean" } }
+                  }
+                ],
+                "description": "\"nombre\", o { \"product\": \"nombre\", \"visible\": false } para esconderlo"
+              }
+            }
+          }
+        },
+        "authors": {
+          "type": "object",
+          "required": ["authors"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "$ref": "#/$defs/idiomas" },
+            "authors": {
+              "type": "array",
+              "description": "las autoras con página, en orden: el nombre de su carpeta de authors/. Una oculta: { \"author\": \"nombre\", \"visible\": false }",
+              "items": {
+                "anyOf": [
+                  { "$ref": "#/$defs/nombre" },
+                  {
+                    "type": "object",
+                    "required": ["author", "visible"],
+                    "additionalProperties": false,
+                    "properties": { "author": { "$ref": "#/$defs/nombre" }, "visible": { "type": "boolean" } }
+                  }
+                ],
+                "description": "\"nombre\", o { \"author\": \"nombre\", \"visible\": false } para esconderla"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

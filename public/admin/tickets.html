@@ -10,9 +10,10 @@
     <main class="admin">
       <h1>Historial de pedidos</h1>
       <p><a href="index.html">← volver</a></p>
+      <p>Escribe el número de seguimiento antes de pasar el pedido a «enviado»: así sale en el correo que recibe el cliente.</p>
       <table id="tabla">
         <thead>
-          <tr><th>Fecha</th><th>Email</th><th>Total</th><th>Items</th><th>Envío</th><th>Estado</th></tr>
+          <tr><th>Fecha</th><th>Email</th><th>Total</th><th>Items</th><th>Envío</th><th>Seguimiento</th><th>Estado</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -52,6 +53,7 @@
               <td>${((p.amount_total || 0) / 100).toFixed(2)} €</td>
               <td>${(p.items || []).map((i) => `${esc(i.nombre || i.id)} ×${Number(i.cantidad) || 0}`).join(", ")}</td>
               <td>${esc(dirTxt(p.envio))}</td>
+              <td><input data-pedido="${p.id}" value="${esc(p.seguimiento).replace(/"/g, "&quot;")}" placeholder="nº del transportista" /></td>
               <td>
                 <select data-pedido="${p.id}">
                   ${ESTADOS.map((e) => `<option value="${e}" ${e === (p.estado || "pendiente") ? "selected" : ""}>${e}</option>`).join("")}
@@ -62,15 +64,18 @@
           )
           .join("");
 
-        tbody.querySelectorAll("select[data-pedido]").forEach((sel) => {
-          sel.addEventListener("change", async () => {
-            const res = await fetch(`/api/admin/pedido-estado`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-              body: JSON.stringify({ id: sel.dataset.pedido, estado: sel.value }),
-            });
-            if (!res.ok) alert("Error guardando estado: " + res.status);
+        // El estado y el seguimiento se guardan siempre juntos, cambie el que cambie.
+        const guardar = async (fila) => {
+          const sel = fila.querySelector("select"), inp = fila.querySelector("input");
+          const res = await fetch(`/api/admin/pedido-estado`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ id: sel.dataset.pedido, estado: sel.value, seguimiento: inp.value }),
           });
+          if (!res.ok) alert("Error guardando el pedido: " + res.status);
+        };
+        tbody.querySelectorAll("[data-pedido]").forEach((el) => {
+          el.addEventListener("change", () => guardar(el.closest("tr")));
         });
       }
 

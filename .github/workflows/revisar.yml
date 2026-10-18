@@ -1,0 +1,52 @@
+# Cada push a main pasa la misma revisión que el build de Cloudflare (que es quien
+# publica la tienda, en la cuenta de Andrea). Si falla, abre un issue con el error,
+# para verlo al entrar al repo; se cierra solo cuando un push vuelve a pasar. No
+# publica nada. Corre en las dos copias (meowrhino y Quiennocorrevuela), como en
+# tatara: el issue le llega también a Andrea. Cómo arreglarlo: CLAUDE.md.
+name: revisar
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - run: npm ci   # sharp, como en Cloudflare
+      # lo que dice el build va también a build.log: si falla, sale en el issue
+      - run: node build/build.mjs 2>&1 | tee build.log
+        shell: bash
+
+      - name: avisar del error en un issue
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REGISTRO: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GUIA: ${{ github.server_url }}/${{ github.repository }}/blob/main/GUIA.md
+        run: |
+          errores=$(grep -E '^ *(✗|⚠)|^    ' build.log 2>/dev/null || tail -n 20 build.log 2>/dev/null || echo 'falló antes del build: mira el registro')
+          cuerpo=$(printf 'El cambio %s no se ha publicado: la tienda sigue como estaba.\n\n```\n%s\n```\n\n[El registro entero](%s) · [qué hacer](%s) («Si algo va mal»)' "${GITHUB_SHA::7}" "$errores" "$REGISTRO" "$GUIA")
+          n=$(gh issue list --state open --label build --json number -q '.[0].number')
+          if [ -n "$n" ]; then gh issue comment "$n" --body "$cuerpo"
+          else
+            gh label create build --color B60205 --description 'la tienda no se ha publicado' --force
+            gh issue create --title 'La tienda no se ha publicado' --label build --body "$cuerpo"
+          fi
+      - name: cerrar el aviso, si lo hay
+        if: success()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --state open --label build --json number -q '.[].number'); do
+            gh issue close "$n" --comment "Arreglado: ${GITHUB_SHA::7} ya pasa la revisión, y Cloudflare lo publica."
+          done

@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schema/author.json",
   "name": "Mia Sala-Patau",
   "bio": {
     "es": [

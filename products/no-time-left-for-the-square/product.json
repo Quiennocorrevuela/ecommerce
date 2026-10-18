@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schema/product.json",
   "title": "No time left for the square",
   "author": "Andrea Carilla",
   "authorId": "andrea-carilla",

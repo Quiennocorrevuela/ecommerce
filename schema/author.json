@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "authors/<nombre>/author.json: una autora",
+  "description": "authors/<nombre>/author.json: una autora. El nombre de la carpeta es su dirección (/autor/<nombre>/); su retrato, img/1.webp en la misma carpeta (si no lo hay, sale la portada de un fanzine suyo). Este fichero lo lee VS Code para explicar cada campo y subrayar lo que está mal; el build y la vista previa comprueban con él mismo.",
+  "type": "object",
+  "required": ["name"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "_": { "type": "string", "description": "Una nota para quien edita. No sale en la web." },
+    "name": { "type": "string", "description": "su nombre, tal cual se ve" },
+    "bio": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "la bio, en cada idioma, como lista de párrafos: { \"es\": [\"primero\", \"segundo\"], … }",
+      "properties": {
+        "es": { "type": "array", "items": { "type": "string" } },
+        "ca": { "type": "array", "items": { "type": "string" } },
+        "en": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

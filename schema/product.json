@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "products/<nombre>/product.json: un fanzine",
+  "description": "products/<nombre>/product.json: un fanzine. El nombre de la carpeta es su dirección (/producto/<nombre>/); sus fotos (1.webp, 2.webp… de imgToWeb), en img/ de la misma carpeta. Este fichero lo lee VS Code (por el \"$schema\" de arriba del JSON) para explicar cada campo y subrayar lo que está mal; el build y la vista previa comprueban con él mismo.",
+  "type": "object",
+  "required": ["title", "author", "price", "weight", "photos"],
+  "additionalProperties": false,
+  "$defs": {
+    "idiomas": {
+      "anyOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": { "es": { "type": "string" }, "ca": { "type": "string" }, "en": { "type": "string" } }
+        }
+      ],
+      "description": "en cada idioma: { \"es\": \"…\", \"ca\": \"…\", \"en\": \"…\" }"
+    }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "_": { "type": "string", "description": "Una nota para quien edita. No sale en la web." },
+    "title": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ],
+      "description": "el título; si va en dos líneas, una lista: [\"No time left\", \"for the square\"]"
+    },
+    "author": { "type": "string", "description": "el nombre de la autora, tal cual se ve" },
+    "authorId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "el nombre de la carpeta de la autora en authors/, en minúsculas y con guiones"
+    },
+    "price": { "type": "number", "minimum": 0, "description": "en euros, con punto y sin comillas: 12.5" },
+    "weight": { "type": "number", "minimum": 0, "description": "los gramos, un número sin comillas: 90" },
+    "soldOut": { "type": "boolean", "description": "true = agotado aunque queden unidades" },
+    "comingSoon": { "type": "boolean", "description": "true = próximamente: sale en la página de su autora, no en la tienda, y no se puede comprar" },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "la ficha; lo que no tenga, se borra (o null)",
+      "properties": {
+        "publisher": { "type": ["string", "null"], "description": "la editorial" },
+        "binding": { "anyOf": [{ "$ref": "#/$defs/idiomas" }, { "type": "null" }], "description": "la encuadernación, en cada idioma" },
+        "pages": { "type": ["number", "null"], "description": "las páginas, un número sin comillas" },
+        "size": { "type": ["string", "null"], "description": "las medidas: \"148 × 210 mm\"" },
+        "year": { "anyOf": [{ "$ref": "#/$defs/idiomas" }, { "type": "null" }], "description": "el año, en cada idioma: { \"es\": \"febrero 2025\", … }" },
+        "edition": { "anyOf": [{ "$ref": "#/$defs/idiomas" }, { "type": "null" }], "description": "la edición, en cada idioma" }
+      }
+    },
+    "text": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "el texto, en cada idioma, como lista de párrafos: { \"es\": [\"primero\", \"segundo\"], … }. El primero sale también en Google",
+      "properties": {
+        "es": { "type": "array", "items": { "type": "string" } },
+        "ca": { "type": "array", "items": { "type": "string" } },
+        "en": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "photos": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[0-9]+$", "description": "el número de la foto, sin .webp y entre comillas: \"3\" es img/3.webp" },
+      "description": "las fotos, por su número y en orden: [\"1\", \"2\", \"3\"]. La primera es la portada"
+    }
+  }
+}

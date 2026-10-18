@@ -10,25 +10,49 @@
     <main class="admin">
       <h1>Newsletter</h1>
       <p><a href="index.html">← volver</a></p>
+      <p><button id="csv">Descargar CSV</button></p>
       <table id="tabla">
-        <thead><tr><th>Email</th><th>Fecha</th></tr></thead>
+        <thead><tr><th>Email</th><th>Fecha</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
     </main>
     <script>
-      (async () => {
-        const token = localStorage.getItem("qnc.admin") || "";
+      const token = localStorage.getItem("qnc.admin") || "";
+      const auth = { Authorization: `Bearer ${token}` };
+      const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+      async function load() {
         if (!token) return alert("Guarda el token en /admin primero");
-        const res = await fetch(`/api/admin/newsletter`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(`/api/admin/newsletter`, { headers: auth });
         if (!res.ok) return alert("Error: " + res.status);
         const rows = await res.json();
-        const esc = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
-        document.querySelector("#tabla tbody").innerHTML = rows
-          .map((r) => `<tr><td>${esc(r.email)}</td><td>${new Date(r.createdAt + "Z").toLocaleString()}</td></tr>`)
+        const tbody = document.querySelector("#tabla tbody");
+        tbody.innerHTML = rows
+          .map((r) => `<tr><td>${esc(r.email)}</td><td>${new Date(r.createdAt + "Z").toLocaleString()}</td>
+            <td><button data-email="${esc(r.email)}">Dar de baja</button></td></tr>`)
           .join("");
-      })();
+        tbody.querySelectorAll("button[data-email]").forEach((b) =>
+          b.addEventListener("click", async () => {
+            if (!confirm(`¿Dar de baja a ${b.dataset.email}?`)) return;
+            const res = await fetch(`/api/admin/newsletter/${encodeURIComponent(b.dataset.email)}`, { method: "DELETE", headers: auth });
+            if (!res.ok) return alert("Error dando de baja: " + res.status);
+            load();
+          })
+        );
+      }
+
+      // La descarga necesita el token en la cabecera: se baja por fetch y se entrega como blob.
+      document.querySelector("#csv").addEventListener("click", async () => {
+        const res = await fetch(`/api/admin/newsletter.csv`, { headers: auth });
+        if (!res.ok) return alert("Error: " + res.status);
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(await res.blob());
+        a.download = "suscriptores.csv";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      load();
     </script>
   </body>
 </html>

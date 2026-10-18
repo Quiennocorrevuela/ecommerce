@@ -23,8 +23,15 @@ data/                site.json (las listas), about.json, events.json (+ events/<
 pages/               las páginas fijas (legal, contacto, newsletter, checkout,
                      gracias, sorry): su <main>, el build les pone el resto
 build/paginas.mjs    las plantillas: datos → HTML (el mismo marcado que pintaba antes el JS)
-build/build.mjs      lee y revisa todo lo de arriba y escribe dist/
-public/              lo que se copia tal cual a dist/: css, js, fuentes, logos, admin/, _headers
+build/validar.mjs    leer un JSON (con la línea de la coma) y revisar que se puede publicar
+build/build.mjs      lee y revisa todo lo de arriba y escribe dist/, con las og:image
+                     de 1200×630 (sharp, no ffmpeg: no está en Workers Builds) en .cache/
+build/preview.mjs    la vista previa: index.html + Live Server, sin build (lo mismo que dist/)
+schema/              un JSON Schema por tipo: VS Code (el "$schema" de cada JSON; events,
+                     por .vscode/settings.json), el build y la vista previa
+public/              lo que se copia tal cual a dist/: css, js, fuentes, logos, admin/, _headers;
+                     css/transicion.css y js/transicion.js, la transición de la casa (JAMstack §6c)
+tools/imgToWeb/      una copia de imgToWeb, por si un día no está la nuestra
 src/index.js         el Worker: /api/* (Hono) y las direcciones de antes → las nuevas
 src/notify.js        avisos por email (apagados mientras EMAIL_TIENDA esté vacío)
 schema.sql           las tablas de D1          migrations/   cambios de tablas
@@ -34,7 +41,14 @@ wrangler.toml        [build] lanza el build; [assets] sirve dist/; D1 (DB → sh
 
 `dist/` no se commitea: lo escribe `wrangler deploy` (y `wrangler dev`) antes de
 publicar, por el `[build]` de `wrangler.toml`. Si un JSON está mal, el build
-para con un mensaje en castellano y no se publica nada.
+para con un mensaje en castellano y no se publica nada. La Action `revisar`
+(`.github/workflows/`) pasa el mismo build en cada push y, si falla, abre un
+issue con el error (se cierra solo al arreglarlo); no publica nada. Cómo
+arreglar un build que falla: `CLAUDE.md`.
+
+Un fanzine o una autora oculta: en su lista, `{ "product": "x", "visible": false }`
+(o `"author"`). Tiene su página, con `noindex`, pero no sale en la tienda, ni con
+su autora, ni en el sitemap; sigue en el catálogo, así que se puede comprar.
 
 ### Lo que hace el JS en el navegador
 
@@ -66,6 +80,7 @@ stock), la **galería** del fanzine y el **calendario** centrado en hoy.
 npm install
 npm run build       # escribe dist/ (y revisa los JSON)
 npm run preview     # dist/ en http://localhost:8123, sin API (sin stock ni pago)
+                    # sin build: Live Server en la raíz (index.html + build/preview.mjs)
 npm run dev         # el Worker entero (D1 local + Stripe con .dev.vars)
 npm run deploy      # publicar a mano (normalmente no hace falta: push = publicado)
 ```
@@ -126,8 +141,8 @@ Workers Paid o `RESEND_API_KEY`; sin eso fallan solos y se loguean.
 ### Newsletter
 
 `/newsletter` recoge emails en D1 (sin duplicados) y se ven en
-`/admin/newsletter.html`. No manda boletines: se exporta la lista y se usa otra
-herramienta. Sin doble opt-in: tenerlo en cuenta en la política de privacidad.
+`/admin/newsletter.html`, con «Descargar CSV» y «Dar de baja» (RGPD). No manda
+boletines: se exporta la lista y se usa otra herramienta. Sin doble opt-in: tenerlo en cuenta en la política de privacidad.
 
 ## Pendiente
 

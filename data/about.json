@@ -1,4 +1,5 @@
 {
+  "$schema": "../schema/about.json",
   "_": "El texto de «nosotras», uno por idioma, como una lista de párrafos: [\"primero\", \"segundo\"]. El primero sale más grande.",
   "es": [
     "Quien no corre, vuela es un proyecto editorial de autoedición que nace de la necesidad de crear colectivamente, entendiendo lo visual como un espacio de expresión, encuentro y comunicación.",

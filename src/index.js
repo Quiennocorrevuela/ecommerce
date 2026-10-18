@@ -103,6 +103,21 @@ function ensureRegistro(env) {
   return registroPromise;
 }
 
+/** Lo mismo para la columna `seguimiento` de pedidos, que llegó después que la tabla.
+ *  SQLite no tiene ADD COLUMN IF NOT EXISTS: si ya está, el ALTER falla y ya vale. */
+let seguimientoPromise = null;
+function ensureSeguimiento(env) {
+  if (seguimientoPromise) return seguimientoPromise;
+  seguimientoPromise = env.DB.prepare(`ALTER TABLE pedidos ADD COLUMN seguimiento TEXT`)
+    .run()
+    .catch((err) => {
+      if (/duplicate column/i.test(String(err?.message))) return;
+      seguimientoPromise = null;
+      throw err;
+    });
+  return seguimientoPromise;
+}
+
 async function fetchStock(env, productoId = null) {
   const stmt = productoId
     ? env.DB.prepare(`SELECT producto_id, talla, cantidad FROM stock WHERE producto_id = ?`).bind(productoId)
@@ -437,9 +452,10 @@ admin.use("*", async (c, next) => {
 admin.get("/historial", async (c) => {
   const limitRaw = Number(c.req.query("limit"));
   const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 500) : 100;
+  await ensureSeguimiento(c.env);
   const { results } = await c.env.DB.prepare(
     `SELECT id, stripe_session_id, email, amount_total, currency, items, zona, envio, estado,
-            created_at AS createdAt
+            seguimiento, created_at AS createdAt
        FROM pedidos ORDER BY created_at DESC LIMIT ?`
   )
     .bind(limit)
@@ -457,21 +473,30 @@ admin.get("/historial", async (c) => {
 const ESTADOS_PEDIDO = ["pendiente", "revisar", "enviado", "entregado", "cancelado"];
 
 admin.post("/pedido-estado", async (c) => {
-  const { id, estado } = await c.req.json().catch(() => ({}));
+  const { id, estado, seguimiento } = await c.req.json().catch(() => ({}));
   if (!id || !ESTADOS_PEDIDO.includes(estado))
     return c.json({ error: `estado debe ser: ${ESTADOS_PEDIDO.join(", ")}` }, 400);
-  const r = await c.env.DB.prepare(`UPDATE pedidos SET estado = ? WHERE id = ?`)
-    .bind(estado, String(id))
-    .run();
-  if (!r.meta.changes) return c.json({ error: "pedido no encontrado" }, 404);
+  await ensureSeguimiento(c.env);
+  // Se lee antes para saber de qué estado viene: el correo sale al PASAR a enviado,
+  // no cada vez que se corrige el número de seguimiento de un pedido ya enviado.
+  const p = await c.env.DB.prepare(
+    `SELECT estado, email, items, envio, seguimiento FROM pedidos WHERE id = ?`
+  )
+    .bind(String(id))
+    .first();
+  if (!p) return c.json({ error: "pedido no encontrado" }, 404);
 
-  // Al pasar a "enviado", avisamos al cliente. El UPDATE no devuelve la fila, así que
-  // la leemos (solo en este caso). items/envio vienen como TEXT: notify.js los parsea.
-  if (estado === "enviado") {
-    const p = await c.env.DB.prepare(`SELECT email, items, envio FROM pedidos WHERE id = ?`)
-      .bind(String(id))
-      .first();
-    if (p?.email) enSegundoPlano(c, notifPedidoEnviado(c.env, { id: String(id), ...p }));
+  // Sin `seguimiento` en el cuerpo se deja el que hubiera; "" lo borra.
+  const seg =
+    seguimiento === undefined ? p.seguimiento : String(seguimiento ?? "").trim().slice(0, 120) || null;
+  await c.env.DB.prepare(`UPDATE pedidos SET estado = ?, seguimiento = ? WHERE id = ?`)
+    .bind(estado, seg, String(id))
+    .run();
+
+  // Al pasar a "enviado", avisamos al cliente, con el número de seguimiento dentro si ya
+  // está escrito. items/envio vienen como TEXT: notify.js los parsea.
+  if (estado === "enviado" && p.estado !== "enviado" && p.email) {
+    enSegundoPlano(c, notifPedidoEnviado(c.env, { id: String(id), ...p, seguimiento: seg }));
   }
 
   return c.json({ ok: true });
@@ -482,6 +507,29 @@ admin.get("/newsletter", async (c) => {
     `SELECT email, created_at AS createdAt FROM newsletter ORDER BY created_at DESC LIMIT 1000`
   ).all();
   return c.json(results);
+});
+
+/** Baja. Hace falta para el RGPD: si alguien pide salir, tiene que poder salir. */
+admin.delete("/newsletter/:email", async (c) => {
+  const mail = c.req.param("email").trim().toLowerCase();
+  const r = await c.env.DB.prepare(`DELETE FROM newsletter WHERE email = ?`).bind(mail).run();
+  if (!r.meta?.changes) return c.json({ error: "no encontrado" }, 404);
+  return c.json({ ok: true });
+});
+
+/** Descarga en CSV, para pegarlo en el programa de envío de correos. */
+admin.get("/newsletter.csv", async (c) => {
+  const { results } = await c.env.DB.prepare(
+    `SELECT email, created_at FROM newsletter ORDER BY created_at DESC`
+  ).all();
+  const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = ["email,alta", ...results.map((r) => [r.email, r.created_at].map(esc).join(","))].join("\n");
+  return new Response(csv, {
+    headers: {
+      "content-type": "text/csv; charset=utf-8",
+      "content-disposition": `attachment; filename="suscriptores.csv"`,
+    },
+  });
 });
 
 admin.get("/mensajes", async (c) => {

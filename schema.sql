@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
   items              TEXT NOT NULL, -- JSON: [{id, nombre, precio, talla, cantidad}]
   zona               TEXT,          -- zona de envío elegida (data/shipping.json)
   envio              TEXT,          -- JSON: {zona, nombre, direccion, telefono} (de Stripe)
-  estado             TEXT NOT NULL DEFAULT 'pendiente', -- pendiente | enviado | entregado | cancelado
+  estado             TEXT NOT NULL DEFAULT 'pendiente', -- pendiente | revisar | enviado | entregado | cancelado
+  seguimiento        TEXT,          -- nº del transportista; el Worker la añade si falta (ensureSeguimiento)
   created_at         TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
