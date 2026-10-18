@@ -31,7 +31,6 @@ schema/              un JSON Schema por tipo: VS Code (el "$schema" de cada JSON
                      por .vscode/settings.json), el build y la vista previa
 public/              lo que se copia tal cual a dist/: css, js, fuentes, logos, admin/, _headers;
                      css/transicion.css y js/transicion.js, la transición de la casa (JAMstack §6c)
-tools/imgToWeb/      una copia de imgToWeb, por si un día no está la nuestra
 src/index.js         el Worker: /api/* (Hono) y las direcciones de antes → las nuevas
 src/notify.js        avisos por email (apagados mientras EMAIL_TIENDA esté vacío)
 schema.sql           las tablas de D1          migrations/   cambios de tablas

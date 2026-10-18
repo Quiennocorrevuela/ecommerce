@@ -34,8 +34,6 @@ Desde ahí, la tienda es esa carpeta: cada vez que abras VS Code, se abre allí.
 Para preparar las fotos, **imgToWeb**: https://meowrhino.github.io/imgToWeb/
 (las pasa a `.webp`, del tamaño justo, y las numera `1.webp`, `2.webp`…).
 **Ábrelo en Chrome o Firefox**, no en Safari: Safari no sabe hacer `.webp`.
-Si un día no está, hay una copia en la tienda: `tools/imgToWeb/index.html`
-(ábrelo con Go Live y entra en `/tools/imgToWeb/`).
 
 ---
 
