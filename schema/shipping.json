@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data/shipping.json: los envíos",
+  "description": "data/shipping.json: las zonas de envío, una por bloque { … }, en el orden en que salen en el carrito. Cada una con su precio por peso («rates») o uno fijo («price»). VS Code lo lee por .vscode/settings.json (una lista no puede llevar \"$schema\"); el build y la vista previa comprueban con él mismo, y el Worker cobra con él.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["zone", "name"],
+    "additionalProperties": false,
+    "properties": {
+      "_": { "type": "string", "description": "Una nota para quien edita. No sale en la web." },
+      "zone": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "el nombre interno de la zona, en minúsculas y con guiones: \"peninsula\"" },
+      "name": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object", "additionalProperties": false, "properties": { "es": { "type": "string" }, "ca": { "type": "string" }, "en": { "type": "string" } } }
+        ],
+        "description": "lo que ve quien compra, en cada idioma: { \"es\": \"España peninsular\", … }"
+      },
+      "countries": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z]{2}$" }, "description": "los países de la zona, en dos letras mayúsculas: [\"ES\", \"PT\"]; sin «countries», todos" },
+      "rates": {
+        "type": "array",
+        "description": "el precio por peso: [{ \"upTo\": 500, \"price\": 3.5 }, …], de menos a más gramos",
+        "items": {
+          "type": "object",
+          "required": ["upTo", "price"],
+          "additionalProperties": false,
+          "properties": {
+            "upTo": { "type": "number", "minimum": 0, "description": "hasta cuántos gramos: 500" },
+            "price": { "type": "number", "minimum": 0, "description": "el precio en euros, con punto: 3.5" }
+          }
+        }
+      },
+      "price": { "type": "number", "minimum": 0, "description": "un precio fijo en euros, con punto, si no va por peso: 4.9" }
+    }
+  }
+}

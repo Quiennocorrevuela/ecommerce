@@ -47,7 +47,7 @@ const fijas = Object.fromEntries(readdirSync(join(ROOT, "pages")).filter((f) => 
   .map((f) => [f.replace(/\.html$/, ""), readFileSync(join(ROOT, "pages", f), "utf8")]));
 
 /* ---------- revisar ---------- */
-const esquemas = Object.fromEntries(["site", "about", "product", "author", "events"].map((t) => [t, leer(`schema/${t}.json`)]));
+const esquemas = Object.fromEntries(["site", "about", "product", "author", "events", "shipping"].map((t) => [t, leer(`schema/${t}.json`)]));
 const { errores, avisos } = revisar({ site, about, products, authors, events, shipping, existe, esquemas });
 
 if (errores.length) {

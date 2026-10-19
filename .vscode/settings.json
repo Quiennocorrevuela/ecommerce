@@ -1,5 +1,16 @@
 {
   "json.schemas": [
-    { "fileMatch": ["data/events.json"], "url": "./schema/events.json" }
+    {
+      "fileMatch": [
+        "data/events.json"
+      ],
+      "url": "./schema/events.json"
+    },
+    {
+      "fileMatch": [
+        "data/shipping.json"
+      ],
+      "url": "./schema/shipping.json"
+    }
   ]
 }

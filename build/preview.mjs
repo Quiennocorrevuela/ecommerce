@@ -70,7 +70,7 @@ async function arrancar() {
     [site, about, events, shipping] = await Promise.all(
       ["site", "about", "events", "shipping"].map((n) => json(`data/${n}.json`)));
     esquemas = Object.fromEntries(await Promise.all(
-      ["site", "about", "product", "author", "events"].map(async (t) => [t, await json(`schema/${t}.json`)])));
+      ["site", "about", "product", "author", "events", "shipping"].map(async (t) => [t, await json(`schema/${t}.json`)])));
     /* El navegador no puede listar carpetas: se leen las de las listas. Una que no
        está, la revisión dice que falta. */
     const leerTodos = (lista, dir, fichero) => Promise.all(entradas(site, lista, dir).map(async ({ id }) => {

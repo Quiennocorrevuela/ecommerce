@@ -96,6 +96,7 @@ export function revisar({ site, about, products, authors, events, shipping, exis
   mirar(site, "site", "data/site.json");
   mirar(about, "about", "data/about.json");
   mirar(events, "events", "data/events.json");
+  mirar(shipping, "shipping", "data/shipping.json");
   for (const { id, ...p } of products) mirar(p, "product", `products/${id}/product.json`);
   for (const { id, ...a } of authors) mirar(a, "author", `authors/${id}/author.json`);
 
