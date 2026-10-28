@@ -170,6 +170,7 @@ como nombre: `data/events/fiebre-2026.webp`.
 | `place` | dónde | `"La Casa Encendida, Madrid"` |
 | `type` | qué es, en `es`, `ca`, `en` | `{ "es": "feria de fotolibros", … }` |
 | `start`, `end` | año-mes-día. Si es un solo día, sin `end` | `"2026-09-18"` |
+| `link` | la web del evento, entera (si no hay, sin `link`); el título lleva a ella | `"https://artslibris.cat/…"` |
 
 El orden dentro del archivo da igual: el calendario los ordena por fecha.
 

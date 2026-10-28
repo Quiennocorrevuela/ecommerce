@@ -587,6 +587,7 @@ main {
 .evento-cartel--vacio { aspect-ratio: 3 / 4; background: #f3f3f3; }
 .evento-fecha { font-size: 0.8rem; letter-spacing: 0.04em; color: var(--muted); }
 .evento-titulo { font-family: var(--font-serif); font-style: italic; font-size: 1.15rem; line-height: 1.15; margin: 0.15rem 0; }
+.evento-titulo a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
 .evento-tipo { font-size: 0.82rem; }
 .evento-lugar { font-size: 0.82rem; color: var(--muted); }
 

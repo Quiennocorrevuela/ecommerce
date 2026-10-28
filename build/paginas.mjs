@@ -312,7 +312,7 @@ ${main.html}
     <article class="evento" data-snap data-fecha="${ddmm(ev.start)}" data-iso="${ev.start}" data-fin="${ev.end || ev.start}">
       ${c ? `<div class="evento-cartel"><img src="${c}" alt="${esc(ev.title)}"></div>` : `<div class="evento-cartel evento-cartel--vacio"></div>`}
       <div class="evento-fecha">${fecha(ev)}</div>
-      <h3 class="evento-titulo">${esc(ev.title)}</h3>
+      <h3 class="evento-titulo">${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener">${esc(ev.title)}</a>` : esc(ev.title)}</h3>
       <div class="evento-tipo">${esc(t(ev.type, l))}</div>
       <div class="evento-lugar">${esc(ev.place)}</div>
     </article>`;

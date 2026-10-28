@@ -68,5 +68,18 @@
     "type": {"es": "feria de fotolibros", "ca": "fira de fotollibres", "en": "photobook fair"},
     "start": "2026-09-18",
     "end": "2026-09-20"
+  },
+  {
+    "id": "artslibris-macba-2026",
+    "title": "ArtsLibris",
+    "place": "MACBA, Barcelona",
+    "type": {
+      "es": "feria del libro de artista, el fotolibro y la autoedición",
+      "ca": "fira del llibre d'artista, el fotollibre i l'autoedició",
+      "en": "artist's book, photobook and self-publishing fair"
+    },
+    "start": "2026-10-30",
+    "end": "2026-11-01",
+    "link": "https://artslibris.cat/feria/artslibris-macba-barcelona-2026/"
   }
 ]
