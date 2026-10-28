@@ -1,4 +1,6 @@
 {
+  "git.rebaseWhenSync": true,
+  "git.pullTags": false,
   "json.schemas": [
     {
       "fileMatch": [
